@@ -24,7 +24,10 @@ pub struct Fraction<T: Integer> {
     pub den: T,
 }
 
-impl<T: Integer + Zero + One + Neg<Output = T> + DivAssign + Copy> Fraction<T> {
+impl<T> Fraction<T>
+where
+    T: Integer + Zero + One + Neg<Output = T> + DivAssign + Copy,
+{
     /**
     Create a new Fraction
 
@@ -165,6 +168,17 @@ impl<T: Integer + Copy> Fraction<T> {
     }
 }
 
+impl<T: Integer + Neg<Output = T>> Neg for Fraction<T> {
+    type Output = Fraction<T>;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        let mut res = self;
+        res.num = -res.num;
+        res
+    }
+}
+
 impl<T: Integer + PartialEq + Copy + DivAssign> PartialEq<T> for Fraction<T> {
     /**
     @brief Equal to
@@ -185,41 +199,6 @@ impl<T: Integer + PartialEq + Copy + DivAssign> PartialEq<T> for Fraction<T> {
 }
 // impl<T: Num + Eq + Clone> Eq for Fraction<T> {}
 
-macro_rules! scalar_eq {
-    ($($scalar:ident),*) => (
-        $(
-            impl PartialEq<Fraction<$scalar>> for $scalar {
-                #[inline]
-                fn eq(&self, other: &Fraction<$scalar>) -> bool {
-                    other.den == 1 as $scalar && other.num == *self
-                }
-            }
-        )*
-    );
-}
-
-scalar_eq!(i32, i64, usize, u32, u64);
-
-// impl PartialEq<Fraction<i32>> for i32 {
-//     /**
-//     @brief Equal to
-//
-//     Examples:
-//
-//     ```rust
-//     use fractions::Fraction;
-//     let mut f = Fraction::from(3);
-//
-//     assert!(3 == f);
-//     ```
-//      */
-//     #[inline]
-//     fn eq(&self, other: &Fraction<i32>) -> bool {
-//         other.den == 1 && other.num == *self
-//     }
-// }
-// impl<T: Num + Eq + Clone> Eq for Fraction<T> {}
-
 impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd<T> for Fraction<T> {
     fn partial_cmp(&self, other: &T) -> Option<Ordering> {
         if self.den == One::one() || *other == Zero::zero() {
@@ -235,43 +214,35 @@ impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd<T> for Fraction<T> {
     }
 }
 
-// impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd<Fraction<T>> for T {
-//     fn partial_cmp(&self, other: &Fraction<T>) -> Option<Ordering> {
-//         if *self == Zero::zero() || other.den == One::one() {
-//             return self.partial_cmp(&other.num);
-//         }
-//         let lhs = other.den.clone();
-//         let mut rhs = Self { num: other.num.clone(), den: self.clone() };
-//         rhs.normalize2();
-//         (rhs.den * lhs).partial_cmp(&rhs.num)
-//     }
-// }
+macro_rules! scalar_ord_eq {
+    ($($scalar:ident),*) => (
+        $(
+            impl PartialEq<Fraction<$scalar>> for $scalar {
+                #[inline]
+                fn eq(&self, other: &Fraction<$scalar>) -> bool {
+                    other.den == 1 as $scalar && other.num == *self
+                }
+            }
 
-// impl PartialOrd<Fraction<i32>> for i32 {
-//     fn partial_cmp(&self, other: &Fraction<i32>) -> Option<Ordering> {
-//         if *self == Zero::zero() || other.den == One::one() {
-//             return self.partial_cmp(&other.num);
-//         }
-//         let lhs = other.den.clone();
-//         let mut rhs = Self { num: other.num.clone(), den: self.clone() };
-//         rhs.normalize2();
-//         (rhs.den * lhs).partial_cmp(&rhs.num)
-//     }
-// }
+            impl PartialOrd<Fraction<$scalar>> for $scalar {
+                fn partial_cmp(&self, other: &Fraction<$scalar>) -> Option<Ordering> {
+                    if other.den == 1 as $scalar || *self == 0 as $scalar {
+                        return self.partial_cmp(&other.num);
+                    }
+                    let mut rhs = Fraction {
+                        num: other.num.clone(),
+                        den: self.clone(),
+                    };
+                    let lhs = other.den.clone();
+                    rhs.normalize();
+                    (lhs * rhs.den).partial_cmp(&rhs.num)
+                }
+            }
+        )*
+    );
+}
 
-// impl<T: Integer + PartialEq + Copy + DivAssign> PartialEq for Fraction<T> {
-//     fn eq(&self, other: &Self) -> bool {
-//         if self.den == other.den {
-//             return self.num == other.num;
-//         }
-//         let mut lhs = Self { num: self.num.clone(), den: other.num.clone() };
-//         let mut rhs = Self { num: other.den.clone(), den: self.den.clone() };
-//         lhs.normalize2();
-//         rhs.normalize2();
-//         lhs.num * rhs.den == lhs.den * rhs.num
-//     }
-// }
-// impl<T: Integer + Eq + Copy + DivAssign> Eq for Fraction<T> {}
+scalar_ord_eq!(i8, i16, i32, i64);
 
 impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd for Fraction<T> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -309,7 +280,10 @@ mod opassign {
     use num_traits::{Num, NumAssign, One, Zero};
     use std::mem;
 
-    impl<T: Integer + Copy + NumAssign + Zero + One> MulAssign for Fraction<T> {
+    impl<T> MulAssign for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Zero + One,
+    {
         fn mul_assign(&mut self, other: Self) {
             let mut rhs = other;
             mem::swap(&mut self.num, &mut rhs.num);
@@ -320,7 +294,10 @@ mod opassign {
         }
     }
 
-    impl<T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One> DivAssign for Fraction<T> {
+    impl<T> DivAssign for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+    {
         fn div_assign(&mut self, other: Self) {
             let mut rhs = other;
             mem::swap(&mut self.den, &mut rhs.num);
@@ -328,6 +305,124 @@ mod opassign {
             rhs.normalize2();
             self.num *= rhs.den;
             self.den *= rhs.num;
+        }
+    }
+
+    impl<T> SubAssign for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Zero + One,
+    {
+        fn sub_assign(&mut self, other: Self) {
+            if self.den == other.den {
+                self.num -= other.num;
+                self.normalize2();
+                return;
+            }
+
+            let mut rhs = other;
+            mem::swap(&mut self.den, &mut rhs.num);
+            let common_n = self.normalize2();
+            let mut common_d = rhs.normalize2();
+            mem::swap(&mut self.den, &mut rhs.num);
+            self.num = self.cross(&rhs);
+            self.den *= rhs.den;
+            mem::swap(&mut self.den, &mut common_d);
+            self.normalize2();
+            self.num *= common_n;
+            self.den *= common_d;
+            self.normalize2();
+        }
+    }
+
+    impl<T> AddAssign for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Zero + One,
+    {
+        fn add_assign(&mut self, other: Self) {
+            if self.den == other.den {
+                self.num += other.num;
+                self.normalize2();
+                return;
+            }
+
+            let mut rhs = other;
+            mem::swap(&mut self.den, &mut rhs.num);
+            let common_n = self.normalize2();
+            let mut common_d = rhs.normalize2();
+            mem::swap(&mut self.den, &mut rhs.num);
+            self.num = self.num * rhs.den + self.den * rhs.num;
+            self.den *= rhs.den;
+            mem::swap(&mut self.den, &mut common_d);
+            self.normalize2();
+            self.num *= common_n;
+            self.den *= common_d;
+            self.normalize2();
+        }
+    }
+
+    impl<T> MulAssign<T> for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Zero + One,
+    {
+        fn mul_assign(&mut self, other: T) {
+            let mut rhs = other;
+            mem::swap(&mut self.num, &mut rhs);
+            self.normalize2();
+            self.num *= rhs;
+        }
+    }
+
+    impl<T> DivAssign<T> for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+    {
+        fn div_assign(&mut self, other: T) {
+            let mut rhs = other;
+            mem::swap(&mut self.den, &mut rhs);
+            self.normalize();
+            self.den *= rhs;
+        }
+    }
+
+    impl<T> SubAssign<T> for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Zero + One,
+    {
+        fn sub_assign(&mut self, other: T) {
+            if self.den == One::one() {
+                self.num -= other;
+                self.normalize2();
+                return;
+            }
+
+            let mut rhs = other;
+            mem::swap(&mut self.den, &mut rhs);
+            let common_n = self.normalize2();
+            mem::swap(&mut self.den, &mut rhs);
+            self.num -= self.den * rhs;
+            self.normalize2();
+            self.num *= common_n;
+        }
+    }
+
+    impl<T> AddAssign<T> for Fraction<T>
+    where
+        T: Integer + Copy + NumAssign + Zero + One,
+    {
+        fn add_assign(&mut self, other: T) {
+            if self.den == One::one() {
+                self.num += other;
+                self.normalize2();
+                return;
+            }
+
+            let mut rhs = other;
+            mem::swap(&mut self.den, &mut rhs);
+            let common_n = self.normalize2();
+            mem::swap(&mut self.den, &mut rhs);
+            self.num += self.den * rhs;
+            self.normalize2();
+            self.num *= common_n;
         }
     }
 
@@ -375,23 +470,10 @@ mod opassign {
     // forward_op_assign1!(impl SubAssign, sub_assign);
     forward_op_assign1!(impl MulAssign, mul_assign);
     forward_op_assign1!(impl DivAssign, div_assign);
+    forward_op_assign2!(impl MulAssign, mul_assign);
+    forward_op_assign2!(impl DivAssign, div_assign);
 }
 
-// /**
-//  * @brief multiply and assign
-//  *
-//  * @param rhs
-//  * @return Fraction&
-//  */
-// pub fn operator*=(Fraction rhs) -> Fraction& {
-//     mem::swap(&mut self.num, &mut rhs.num);
-//     self.normalize2();
-//     rhs.normalize2();
-//     self.num *= rhs.num;
-//     self.den *= rhs.den;
-//     return *this;
-// }
-//
 // /**
 //  * @brief multiply
 //  *
@@ -401,19 +483,6 @@ mod opassign {
 //  */
 // pub fn operator*(Fraction lhs, const Fraction& rhs) -> Fraction {
 //     return lhs *= rhs;
-// }
-//
-// /**
-//  * @brief multiply and assign
-//  *
-//  * @param rhs
-//  * @return Fraction&
-//  */
-// pub fn operator*=(T rhs) -> Fraction& {
-//     mem::swap(&mut self.num, &mut rhs);
-//     self.normalize2();
-//     self.num *= rhs;
-//     return *this;
 // }
 //
 // /**
@@ -439,21 +508,6 @@ mod opassign {
 // }
 //
 // /**
-//  * @brief divide and assign
-//  *
-//  * @param rhs
-//  * @return Fraction&
-//  */
-// pub fn operator/=(Fraction rhs) -> Fraction& {
-//     mem::swap(&mut self.den, &mut rhs.num);
-//     self.normalize();
-//     rhs.normalize2();
-//     self.num *= rhs.den;
-//     self.den *= rhs.num;
-//     return *this;
-// }
-//
-// /**
 //  * @brief divide
 //  *
 //  * @param lhs
@@ -462,19 +516,6 @@ mod opassign {
 //  */
 // pub fn operator/(Fraction lhs, const Fraction& rhs) -> Fraction {
 //     return lhs /= rhs;
-// }
-//
-// /**
-//  * @brief divide and assign
-//  *
-//  * @param rhs
-//  * @return Fraction&
-//  */
-// pub fn operator/=(const T& rhs) -> Fraction& {
-//     mem::swap(&mut self.den, &mut rhs);
-//     self.normalize();
-//     self.den *= rhs;
-//     return *this;
 // }
 //
 // /**
@@ -498,17 +539,6 @@ mod opassign {
 // pub fn operator/(const T& lhs, Fraction rhs) -> Fraction {
 //     rhs.reciprocal();
 //     return rhs *= lhs;
-// }
-//
-// /**
-//  * @brief Negate
-//  *
-//  * @return Fraction
-//  */
-// pub fn operator-() const -> Fraction {
-//     let mut res = Fraction(*this);
-//     res.num = -res.num;
-//     return res;
 // }
 //
 // /**
