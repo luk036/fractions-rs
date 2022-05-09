@@ -71,4 +71,45 @@ mod tests {
         f += 2;
         assert_eq!(f, Fraction::new(3, 4));
     }
+
+    #[test]
+    fn test_mul_div() {
+        let f = Fraction::new(3, 4);
+        let g = Fraction::new(5, 6);
+        assert_eq!(f * g, Fraction::new(5, 8));
+        assert_eq!(f / g, Fraction::new(9, 10));
+        assert_eq!(f * 2, Fraction::new(3, 2));
+        assert_eq!(f / 2, Fraction::new(3, 8));
+    }
+
+    #[test]
+    fn test_add_sub() {
+        let f = Fraction::new(3, 4);
+        let g = Fraction::new(5, 6);
+        assert_eq!(f - g, Fraction::new(-1, 12));
+        assert_eq!(f + g, Fraction::new(19, 12));
+        assert_eq!(f - 2, Fraction::new(-5, 4));
+        assert_eq!(f + 2, Fraction::new(11, 4));
+    }
+
+    #[test]
+    fn test_special() {
+        let zero = Fraction::new(0, 1);
+        let infp = Fraction::new(1, 0);
+        let infn = Fraction::new(-1, 0);
+        let pos = Fraction::new(1, 40);
+        let neg = Fraction::new(-1, 2);
+        assert!(infn < neg);
+        assert!(neg < zero);
+        assert!(zero < pos);
+        assert!(pos < infp);
+        assert!(infn < infp);
+
+        let nan = Fraction::new(0, 0);
+        assert_eq!(infn * neg, infp);
+        assert_eq!(infn * pos, infn);
+        assert_eq!(infp * zero, nan);
+        assert_eq!(infp + infp, infp);
+        assert_eq!(infp - infp, nan);
+    }
 }

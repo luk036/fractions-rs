@@ -5,12 +5,12 @@
 use core::hash;
 // use core::iter::{Product, Sum};
 use core::ops::{Add, Div, Mul, Neg, Rem, Sub};
-use core::ops::{AddAssign, DivAssign, MulAssign};
+use core::ops::{AddAssign, SubAssign, DivAssign, MulAssign};
 
 // use core::str::FromStr;
 use num::integer::gcd;
 use num::Integer;
-use num_traits::{Num, One, Zero};
+use num_traits::{NumAssign, Num, One, Zero};
 // #[cfg(feature = "std")]
 // use std::error::Error;
 use std::cmp::Ordering;
@@ -308,207 +308,321 @@ impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
 
 // Op Assign
 
-mod opassign {
-    use crate::fractions::Fraction;
-    use core::ops::{Add, Div, Mul, Neg, Rem, Sub};
-    use core::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
-    use num::Integer;
-    use num_traits::{Num, NumAssign, One, Zero};
-    use std::mem;
-
-    impl<T> MulAssign for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Zero + One,
-    {
-        fn mul_assign(&mut self, other: Self) {
-            let mut rhs = other;
-            mem::swap(&mut self.num, &mut rhs.num);
-            self.normalize2();
-            rhs.normalize2();
-            self.num *= rhs.num;
-            self.den *= rhs.den;
-        }
+impl<T> MulAssign for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Zero + One,
+{
+    fn mul_assign(&mut self, other: Self) {
+        let mut rhs = other;
+        mem::swap(&mut self.num, &mut rhs.num);
+        self.normalize2();
+        rhs.normalize2();
+        self.num *= rhs.num;
+        self.den *= rhs.den;
     }
-
-    impl<T> DivAssign for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
-    {
-        fn div_assign(&mut self, other: Self) {
-            let mut rhs = other;
-            mem::swap(&mut self.den, &mut rhs.num);
-            self.normalize();
-            rhs.normalize2();
-            self.num *= rhs.den;
-            self.den *= rhs.num;
-        }
-    }
-
-    impl<T> SubAssign for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Zero + One,
-    {
-        fn sub_assign(&mut self, other: Self) {
-            if self.den == other.den {
-                self.num -= other.num;
-                self.normalize2();
-                return;
-            }
-
-            let mut rhs = other;
-            mem::swap(&mut self.den, &mut rhs.num);
-            let common_n = self.normalize2();
-            let mut common_d = rhs.normalize2();
-            mem::swap(&mut self.den, &mut rhs.num);
-            self.num = self.cross(&rhs);
-            self.den *= rhs.den;
-            mem::swap(&mut self.den, &mut common_d);
-            self.normalize2();
-            self.num *= common_n;
-            self.den *= common_d;
-            self.normalize2();
-        }
-    }
-
-    impl<T> AddAssign for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Zero + One,
-    {
-        fn add_assign(&mut self, other: Self) {
-            if self.den == other.den {
-                self.num += other.num;
-                self.normalize2();
-                return;
-            }
-
-            let mut rhs = other;
-            mem::swap(&mut self.den, &mut rhs.num);
-            let common_n = self.normalize2();
-            let mut common_d = rhs.normalize2();
-            mem::swap(&mut self.den, &mut rhs.num);
-            self.num = self.num * rhs.den + self.den * rhs.num;
-            self.den *= rhs.den;
-            mem::swap(&mut self.den, &mut common_d);
-            self.normalize2();
-            self.num *= common_n;
-            self.den *= common_d;
-            self.normalize2();
-        }
-    }
-
-    impl<T> MulAssign<T> for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Zero + One,
-    {
-        fn mul_assign(&mut self, other: T) {
-            let mut rhs = other;
-            mem::swap(&mut self.num, &mut rhs);
-            self.normalize2();
-            self.num *= rhs;
-        }
-    }
-
-    impl<T> DivAssign<T> for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
-    {
-        fn div_assign(&mut self, other: T) {
-            let mut rhs = other;
-            mem::swap(&mut self.den, &mut rhs);
-            self.normalize();
-            self.den *= rhs;
-        }
-    }
-
-    impl<T> SubAssign<T> for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Zero + One,
-    {
-        fn sub_assign(&mut self, other: T) {
-            if self.den == One::one() {
-                self.num -= other;
-                self.normalize2();
-                return;
-            }
-
-            let mut rhs = other;
-            mem::swap(&mut self.den, &mut rhs);
-            let common_n = self.normalize2();
-            mem::swap(&mut self.den, &mut rhs);
-            self.num -= self.den * rhs;
-            self.normalize2();
-            self.num *= common_n;
-        }
-    }
-
-    impl<T> AddAssign<T> for Fraction<T>
-    where
-        T: Integer + Copy + NumAssign + Zero + One,
-    {
-        fn add_assign(&mut self, other: T) {
-            if self.den == One::one() {
-                self.num += other;
-                self.normalize2();
-                return;
-            }
-
-            let mut rhs = other;
-            mem::swap(&mut self.den, &mut rhs);
-            let common_n = self.normalize2();
-            mem::swap(&mut self.den, &mut rhs);
-            self.num += self.den * rhs;
-            self.normalize2();
-            self.num *= common_n;
-        }
-    }
-
-    // impl<T: Integer + Clone + NumAssign> AddAssign for Fraction<T> {
-    //     fn add_assign(&mut self, other: Self) {
-    //         self.num += other.num;
-    //         self.den += other.den;
-    //     }
-    // }
-    //
-    // impl<T: Integer + Clone + NumAssign> SubAssign for Fraction<T> {
-    //     fn sub_assign(&mut self, other: Self) {
-    //         self.num -= other.num;
-    //         self.den -= other.den;
-    //     }
-    // }
-
-    macro_rules! forward_op_assign1 {
-        (impl $imp:ident, $method:ident) => {
-            impl<'a, T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One>
-                $imp<&'a Fraction<T>> for Fraction<T>
-            {
-                #[inline]
-                fn $method(&mut self, other: &Self) {
-                    self.$method(other.clone())
-                }
-            }
-        };
-    }
-
-    macro_rules! forward_op_assign2 {
-        (impl $imp:ident, $method:ident) => {
-            impl<'a, T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One> $imp<&'a T>
-                for Fraction<T>
-            {
-                #[inline]
-                fn $method(&mut self, other: &T) {
-                    self.$method(other.clone())
-                }
-            }
-        };
-    }
-
-    // forward_op_assign1!(impl AddAssign, add_assign);
-    // forward_op_assign1!(impl SubAssign, sub_assign);
-    forward_op_assign1!(impl MulAssign, mul_assign);
-    forward_op_assign1!(impl DivAssign, div_assign);
-    forward_op_assign2!(impl MulAssign, mul_assign);
-    forward_op_assign2!(impl DivAssign, div_assign);
 }
+
+// impl<T> Mul for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn mul(self, other: Self) -> Self::Output {
+//         let mut res = self;
+//         res.mul_assign(other);
+//         res
+//     }
+// }
+
+impl<T> DivAssign for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+{
+    fn div_assign(&mut self, other: Self) {
+        let mut rhs = other;
+        mem::swap(&mut self.den, &mut rhs.num);
+        self.normalize();
+        rhs.normalize2();
+        self.num *= rhs.den;
+        self.den *= rhs.num;
+    }
+}
+
+// impl<T> Div for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn div(self, other: Self) -> Self::Output {
+//         let mut res = self;
+//         res /= other;
+//         res
+//     }
+// }
+
+impl<T> SubAssign for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Zero + One,
+{
+    fn sub_assign(&mut self, other: Self) {
+        if self.den == other.den {
+            self.num -= other.num;
+            self.normalize2();
+            return;
+        }
+
+        let mut rhs = other;
+        mem::swap(&mut self.den, &mut rhs.num);
+        let common_n = self.normalize2();
+        let mut common_d = rhs.normalize2();
+        mem::swap(&mut self.den, &mut rhs.num);
+        self.num = self.cross(&rhs);
+        self.den *= rhs.den;
+        mem::swap(&mut self.den, &mut common_d);
+        self.normalize2();
+        self.num *= common_n;
+        self.den *= common_d;
+        self.normalize2();
+    }
+}
+
+// impl<T> Sub for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn sub(self, other: Self) -> Self::Output {
+//         let mut res = self;
+//         res -= other;
+//         res
+//     }
+// }
+
+impl<T> AddAssign for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Zero + One,
+{
+    fn add_assign(&mut self, other: Self) {
+        if self.den == other.den {
+            self.num += other.num;
+            self.normalize2();
+            return;
+        }
+
+        let mut rhs = other;
+        mem::swap(&mut self.den, &mut rhs.num);
+        let common_n = self.normalize2();
+        let mut common_d = rhs.normalize2();
+        mem::swap(&mut self.den, &mut rhs.num);
+        self.num = self.num * rhs.den + self.den * rhs.num;
+        self.den *= rhs.den;
+        mem::swap(&mut self.den, &mut common_d);
+        self.normalize2();
+        self.num *= common_n;
+        self.den *= common_d;
+        self.normalize2();
+    }
+}
+
+// impl<T> Add for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn add(self, other: Self) -> Self::Output {
+//         let mut res = self;
+//         res += other;
+//         res
+//     }
+// }
+
+impl<T> MulAssign<T> for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Zero + One,
+{
+    fn mul_assign(&mut self, other: T) {
+        let mut rhs = other;
+        mem::swap(&mut self.num, &mut rhs);
+        self.normalize2();
+        self.num *= rhs;
+    }
+}
+
+// impl<T> Mul<T> for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn mul(self, other: T) -> Self::Output {
+//         let mut res = self;
+//         res *= other;
+//         res
+//     }
+// }
+
+impl<T> DivAssign<T> for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+{
+    fn div_assign(&mut self, other: T) {
+        let mut rhs = other;
+        mem::swap(&mut self.den, &mut rhs);
+        self.normalize();
+        self.den *= rhs;
+    }
+}
+
+// impl<T> Div<T> for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn div(self, other: T) -> Self::Output {
+//         let mut res = self;
+//         res /= other;
+//         res
+//     }
+// }
+
+impl<T> SubAssign<T> for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Zero + One,
+{
+    fn sub_assign(&mut self, other: T) {
+        if self.den == One::one() {
+            self.num -= other;
+            self.normalize2();
+            return;
+        }
+
+        let mut rhs = other;
+        mem::swap(&mut self.den, &mut rhs);
+        let common_n = self.normalize2();
+        mem::swap(&mut self.den, &mut rhs);
+        self.num -= self.den * rhs;
+        self.normalize2();
+        self.num *= common_n;
+    }
+}
+
+// impl<T> Sub<T> for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn sub(self, other: T) -> Self::Output {
+//         let mut res = self;
+//         res -= other;
+//         res
+//     }
+// }
+
+impl<T> AddAssign<T> for Fraction<T>
+where
+    T: Integer + Copy + NumAssign + Zero + One,
+{
+    fn add_assign(&mut self, other: T) {
+        if self.den == One::one() {
+            self.num += other;
+            self.normalize2();
+            return;
+        }
+
+        let mut rhs = other;
+        mem::swap(&mut self.den, &mut rhs);
+        let common_n = self.normalize2();
+        mem::swap(&mut self.den, &mut rhs);
+        self.num += self.den * rhs;
+        self.normalize2();
+        self.num *= common_n;
+    }
+}
+
+// impl<T> Add<T> for Fraction<T>
+// where
+//     T: Integer + Copy + NumAssign + Zero + One,
+// {
+//     type Output = Self;
+//     
+//     fn add(self, other: T) -> Self::Output {
+//         let mut res = self;
+//         res += other;
+//         res
+//     }
+// }
+
+macro_rules! forward_op_assign {
+    (impl $imp:ident, $method:ident) => {
+        impl<'a, T> $imp<&'a Fraction<T>> for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+        {
+            #[inline]
+            fn $method(&mut self, other: &Self) {
+                self.$method(other.clone())
+            }
+        }
+
+        impl<'a, T> $imp<&'a T> for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+        {
+            #[inline]
+            fn $method(&mut self, other: &T) {
+                self.$method(other.clone())
+            }
+        }
+    };
+}
+
+forward_op_assign!(impl AddAssign, add_assign);
+forward_op_assign!(impl SubAssign, sub_assign);
+forward_op_assign!(impl MulAssign, mul_assign);
+forward_op_assign!(impl DivAssign, div_assign);
+
+macro_rules! forward_op {
+    (impl $imp:ident, $method:ident, $op_assign:ident) => {
+        impl<T> $imp for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn $method(self, other: Self) -> Self::Output {
+                let mut res = self;
+                res.$op_assign(other);
+                res
+            }
+        }
+
+        impl<T> $imp<T> for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn $method(self, other: T) -> Self::Output {
+                let mut res = self;
+                res.$op_assign(other);
+                res
+            }
+        }
+    };
+}
+
+forward_op!(impl Add, add, add_assign);
+forward_op!(impl Sub, sub, sub_assign);
+forward_op!(impl Mul, mul, mul_assign);
+forward_op!(impl Div, div, div_assign);
 
 // /**
 //  * @brief multiply
