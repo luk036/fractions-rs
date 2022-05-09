@@ -19,9 +19,9 @@ use std::mem; // for swap
 #[derive(PartialEq, Eq, Copy, Clone, Hash, Debug)]
 pub struct Fraction<T: Integer> {
     /// numerator portion of the Fraction object
-    pub num: T,
+    num: T,
     /// denominator portion of the Fraction object
-    pub den: T,
+    den: T,
 }
 
 impl<T> Fraction<T>
@@ -35,10 +35,9 @@ where
 
     ```rust
     use fractions::Fraction;
-    let f = Fraction::new(30, 40);
+    let f = Fraction::new(30, -40);
 
-    assert_eq!(f.num, 3);
-    assert_eq!(f.den, 4);
+    assert_eq!(f, Fraction::new(-3, 4));
     ```
     */
     #[inline]
@@ -98,11 +97,10 @@ impl<T: Integer + Zero + Neg<Output = T> + Ord + Copy> Fraction<T> {
 
     ```rust
     use fractions::Fraction;
-    let mut f = Fraction::new(30, 40);
+    let mut f = Fraction::new(30, -40);
     f.reciprocal();
 
-    assert_eq!(f.num, 4);
-    assert_eq!(f.den, 3);
+    assert_eq!(f, Fraction::new(-4, 3));
     ```
     */
     #[inline]
@@ -122,8 +120,7 @@ impl<T: Integer + One> Fraction<T> {
     use fractions::Fraction;
     let mut f = Fraction::from(3);
 
-    assert_eq!(f.num, 3);
-    assert_eq!(f.den, 1);
+    assert_eq!(f, Fraction::new(3, 1));
     ```
     */
     #[inline]
@@ -145,8 +142,7 @@ impl<T: Integer + One + Zero> Default for Fraction<T> {
     use fractions::Fraction;
     let mut f = Fraction::<i32>::default();
 
-    assert_eq!(f.num, 0);
-    assert_eq!(f.den, 1);
+    assert_eq!(f, Fraction::new(0, 1));
     ```
     */
     #[inline]
@@ -171,6 +167,18 @@ impl<T: Integer + Copy> Fraction<T> {
 impl<T: Integer + Neg<Output = T>> Neg for Fraction<T> {
     type Output = Fraction<T>;
 
+    /**
+    Negation
+
+    Examples:
+
+    ```rust
+    use fractions::Fraction;
+    let mut f = Fraction::new(3, 4);
+
+    assert_eq!(-f, Fraction::new(-3, 4));
+    ```
+    */
     #[inline]
     fn neg(self) -> Self::Output {
         let mut res = self;
@@ -181,17 +189,19 @@ impl<T: Integer + Neg<Output = T>> Neg for Fraction<T> {
 
 impl<T: Integer + PartialEq + Copy + DivAssign> PartialEq<T> for Fraction<T> {
     /**
-    @brief Equal to
+    Equal to
 
     Examples:
 
     ```rust
     use fractions::Fraction;
-    let mut f = Fraction::from(3);
+    let f = Fraction::from(3);
+    let g = Fraction::new(3, 4);
 
-    assert_eq!(f, 3);
+    assert!(f == 3);
+    assert!(g != 3);
     ```
-     */
+    */
     #[inline]
     fn eq(&self, other: &T) -> bool {
         self.den == One::one() && self.num == *other
@@ -200,6 +210,19 @@ impl<T: Integer + PartialEq + Copy + DivAssign> PartialEq<T> for Fraction<T> {
 // impl<T: Num + Eq + Clone> Eq for Fraction<T> {}
 
 impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd<T> for Fraction<T> {
+    /**
+    PartialOrd
+
+    Examples:
+
+    ```rust
+    use fractions::Fraction;
+    let f = Fraction::new(3, 4);
+
+    assert!(f < 1);
+    assert!(f > 0);
+    ```
+    */
     fn partial_cmp(&self, other: &T) -> Option<Ordering> {
         if self.den == One::one() || *other == Zero::zero() {
             return self.num.partial_cmp(other);
@@ -251,6 +274,19 @@ impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd for Fraction<T> {
 }
 
 impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
+    /**
+    PartialOrd
+
+    Examples:
+
+    ```rust
+    use fractions::Fraction;
+    let f = Fraction::new(3, 4);
+    let g = Fraction::new(5, 7);
+
+    assert!(f > g);
+    ```
+    */
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         if self.den == other.den {
@@ -261,8 +297,8 @@ impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
             den: other.num.clone(),
         };
         let mut rhs = Self {
-            num: other.den.clone(),
-            den: self.den.clone(),
+            num: self.den.clone(),
+            den: other.den.clone(),
         };
         lhs.normalize2();
         rhs.normalize2();
