@@ -5,12 +5,12 @@
 use core::hash;
 // use core::iter::{Product, Sum};
 use core::ops::{Add, Div, Mul, Neg, Rem, Sub};
-use core::ops::{AddAssign, SubAssign, DivAssign, MulAssign};
+use core::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 
 // use core::str::FromStr;
 use num::integer::gcd;
 use num::Integer;
-use num_traits::{NumAssign, Num, One, Zero};
+use num_traits::{Num, NumAssign, One, Zero};
 // #[cfg(feature = "std")]
 // use std::error::Error;
 use std::cmp::Ordering;
@@ -327,7 +327,7 @@ where
 //     T: Integer + Copy + NumAssign + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn mul(self, other: Self) -> Self::Output {
 //         let mut res = self;
 //         res.mul_assign(other);
@@ -354,7 +354,7 @@ where
 //     T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn div(self, other: Self) -> Self::Output {
 //         let mut res = self;
 //         res /= other;
@@ -393,7 +393,7 @@ where
 //     T: Integer + Copy + NumAssign + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn sub(self, other: Self) -> Self::Output {
 //         let mut res = self;
 //         res -= other;
@@ -432,7 +432,7 @@ where
 //     T: Integer + Copy + NumAssign + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn add(self, other: Self) -> Self::Output {
 //         let mut res = self;
 //         res += other;
@@ -457,7 +457,7 @@ where
 //     T: Integer + Copy + NumAssign + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn mul(self, other: T) -> Self::Output {
 //         let mut res = self;
 //         res *= other;
@@ -482,7 +482,7 @@ where
 //     T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn div(self, other: T) -> Self::Output {
 //         let mut res = self;
 //         res /= other;
@@ -516,7 +516,7 @@ where
 //     T: Integer + Copy + NumAssign + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn sub(self, other: T) -> Self::Output {
 //         let mut res = self;
 //         res -= other;
@@ -550,7 +550,7 @@ where
 //     T: Integer + Copy + NumAssign + Zero + One,
 // {
 //     type Output = Self;
-//     
+//
 //     fn add(self, other: T) -> Self::Output {
 //         let mut res = self;
 //         res += other;
@@ -594,7 +594,7 @@ macro_rules! forward_op {
             T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
         {
             type Output = Self;
-            
+
             #[inline]
             fn $method(self, other: Self) -> Self::Output {
                 let mut res = self;
@@ -608,7 +608,7 @@ macro_rules! forward_op {
             T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
         {
             type Output = Self;
-            
+
             #[inline]
             fn $method(self, other: T) -> Self::Output {
                 let mut res = self;
