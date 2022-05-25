@@ -109,7 +109,11 @@ mod tests {
         assert_eq!(infn * neg, infp);
         assert_eq!(infn * pos, infn);
         assert_eq!(infp * zero, nan);
+        assert_eq!(infn * zero, nan);
+        assert_eq!(infp / infp, nan);
         assert_eq!(infp + infp, infp);
         assert_eq!(infp - infp, nan);
+        assert_eq!(infp - pos, infp);
+        assert_eq!(infn + pos, infn);
     }
 }
