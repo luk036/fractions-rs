@@ -8,8 +8,8 @@ use core::ops::{Add, Div, Mul, Neg, Rem, Sub};
 use core::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 
 // use core::str::FromStr;
-use num::integer::gcd;
-use num::Integer;
+use num_integer::gcd;
+use num_integer::Integer;
 use num_traits::{Num, NumAssign, One, Zero};
 // #[cfg(feature = "std")]
 // use std::error::Error;

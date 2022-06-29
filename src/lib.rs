@@ -4,7 +4,7 @@ pub use crate::fractions::Fraction;
 #[cfg(test)]
 mod tests {
     use crate::fractions::Fraction;
-    use num::integer::gcd;
+    use num_integer::gcd;
 
     #[test]
     fn it_works() {
