@@ -11,3 +11,7 @@ path = "src/lib.rs"
 [dependencies]
 num-integer = { version = "0.1.44" }
 num-traits = { version = "0.2.14" }
+
+[dev-dependencies]
+quickcheck = "1"
+quickcheck_macros = "1"
