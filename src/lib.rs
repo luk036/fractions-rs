@@ -148,8 +148,8 @@ mod tests {
 
     #[quickcheck]
     fn check_order(d1: u16, d2: u16) -> bool {
-        let p = Fraction::new(300000001, d1 as i32);
-        let q = Fraction::new(400000001, d2 as i32);
+        let p = Fraction::new(300000001_i64, d1 as i64);
+        let q = Fraction::new(400000001_i64, d2 as i64);
         p < q || p > q || p == q
     }
 
