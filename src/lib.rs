@@ -147,30 +147,30 @@ mod tests {
     }
 
     #[quickcheck]
-    fn check_order(d1: u16, d2: u16) -> bool {
-        let p = Fraction::new(300000001_i64, d1 as i64);
-        let q = Fraction::new(400000001_i64, d2 as i64);
+    fn check_order(d1: u32, d2: u32) -> bool {
+        let p = Fraction::new(2000000000, d1 as i32);
+        let q = Fraction::new(2000000000, d2 as i32);
         p < q || p > q || p == q
     }
 
     #[quickcheck]
-    fn check_mul(d1: u16, d2: u16) -> bool {
-        let p = Fraction::new(300000001_i64, d1 as i64);
-        let q = Fraction::new(400000001_i64, d2 as i64);
+    fn check_mul(n1: u16, d2: u16) -> bool {
+        let p = Fraction::new(n1 as i32, 2000000000);
+        let q = Fraction::new(2000000000, d2 as i32);
         p * q == q * p
     }
 
     #[quickcheck]
-    fn check_add(d1: u16, d2: u16) -> bool {
-        let p = Fraction::new(300000001_i64, d1 as i64);
-        let q = Fraction::new(400000001_i64, d2 as i64);
+    fn check_add(d1: u32, d2: u32) -> bool {
+        let p = Fraction::new(2000000001 as i128, d1 as i128);
+        let q = Fraction::new(2000000009 as i128, d2 as i128);
         p + q == q + p
     }
 
     #[quickcheck]
-    fn check_add_sub(n1: u16, n2: u16) -> bool {
-        let p = Fraction::new(n1 as i64, 300000001_i64);
-        let q = Fraction::new(n2 as i64, 400000001_i64);
+    fn check_add_sub(n1: u32, n2: u32) -> bool {
+        let p = Fraction::new(n1 as i128, 2000000001_i128);
+        let q = Fraction::new(n2 as i128, 2000000009_i128);
         p == (p + q) - q
     }
 }
