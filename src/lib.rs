@@ -3,8 +3,8 @@ pub use crate::fractions::Fraction;
 
 #[cfg(test)]
 mod tests {
-    use num_integer::gcd;
     use super::*;
+    use num_integer::gcd;
     use quickcheck_macros::quickcheck;
 
     #[test]
