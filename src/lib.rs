@@ -1,5 +1,6 @@
 pub mod fractions;
 pub use crate::fractions::Fraction;
+pub use crate::fractions::{const_abs, const_gcd};
 
 #[cfg(test)]
 mod tests {
@@ -9,6 +10,9 @@ mod tests {
 
     #[test]
     fn it_works() {
+        const RESULT: i32 = const_gcd(4, -6);
+        assert_eq!(RESULT, 2);
+
         let result = gcd(4, -6);
         assert_eq!(result, 2);
 

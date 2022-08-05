@@ -16,6 +16,39 @@ use num_traits::{Num, NumAssign, One, Zero};
 use std::cmp::Ordering;
 use std::mem; // for swap
 
+// #[inline]
+// pub const fn const_abs2<T>(a: T) -> T
+// where T: Integer + Neg<Output = T> + Zero + ~const std::cmp::PartialOrd,
+// {
+//     if a < Zero::zero() { -a } else { a }
+// }
+
+#[inline]
+pub const fn const_abs(a: i32) -> i32 
+{
+    if a < 0 { -a } else { a }
+}
+
+#[inline]
+const fn gcd_recur(m: i32, n: i32) -> i32 {
+    if n == 0 {
+        const_abs(m)
+    }
+    else {
+        gcd_recur(n, m % n)
+    }
+}
+
+#[inline]
+pub const fn const_gcd(m: i32, n: i32) -> i32 {
+    if m == 0 {
+        const_abs(n)
+    }
+    else {
+        gcd_recur(m, n)
+    }
+}
+
 #[derive(PartialEq, Eq, Copy, Clone, Hash, Debug)]
 pub struct Fraction<T: Integer> {
     /// numerator portion of the Fraction object
