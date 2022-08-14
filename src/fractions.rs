@@ -24,17 +24,19 @@ use std::mem; // for swap
 // }
 
 #[inline]
-pub const fn const_abs(a: i32) -> i32 
-{
-    if a < 0 { -a } else { a }
+pub const fn const_abs(a: i32) -> i32 {
+    if a < 0 {
+        -a
+    } else {
+        a
+    }
 }
 
 #[inline]
 const fn gcd_recur(m: i32, n: i32) -> i32 {
     if n == 0 {
         const_abs(m)
-    }
-    else {
+    } else {
         gcd_recur(n, m % n)
     }
 }
@@ -43,8 +45,7 @@ const fn gcd_recur(m: i32, n: i32) -> i32 {
 pub const fn const_gcd(m: i32, n: i32) -> i32 {
     if m == 0 {
         const_abs(n)
-    }
-    else {
+    } else {
         gcd_recur(m, n)
     }
 }
