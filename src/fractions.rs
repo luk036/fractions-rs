@@ -262,10 +262,10 @@ impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd<T> for Fraction<T> {
             return self.num.partial_cmp(other);
         }
         let mut lhs = Self {
-            num: self.num.clone(),
-            den: other.clone(),
+            num: self.num,
+            den: *other,
         };
-        let rhs = self.den.clone();
+        let rhs = self.den;
         lhs.normalize2();
         lhs.num.partial_cmp(&(lhs.den * rhs))
     }
@@ -327,12 +327,12 @@ impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
             return self.num.cmp(&other.num);
         }
         let mut lhs = Self {
-            num: self.num.clone(),
-            den: other.num.clone(),
+            num: self.num,
+            den: other.num,
         };
         let mut rhs = Self {
-            num: self.den.clone(),
-            den: other.den.clone(),
+            num: self.den,
+            den: other.den,
         };
         lhs.normalize2();
         rhs.normalize2();

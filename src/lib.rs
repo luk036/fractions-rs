@@ -154,7 +154,7 @@ mod tests {
     fn check_order(d1: u32, d2: u32) -> bool {
         let p = Fraction::new(2000000000, d1 as i32);
         let q = Fraction::new(2000000000, d2 as i32);
-        p < q || p > q || p == q
+        p <= q || p > q
     }
 
     #[quickcheck]
@@ -166,8 +166,8 @@ mod tests {
 
     #[quickcheck]
     fn check_add(d1: u32, d2: u32) -> bool {
-        let p = Fraction::new(2000000001 as i128, d1 as i128);
-        let q = Fraction::new(2000000009 as i128, d2 as i128);
+        let p = Fraction::new(2000000001_i128, d1 as i128);
+        let q = Fraction::new(2000000009_i128, d2 as i128);
         p + q == q + p
     }
 
