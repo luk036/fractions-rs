@@ -499,6 +499,7 @@ where
 //     }
 // }
 
+#[allow(clippy::suspicious_op_assign_impl)]
 impl<T> DivAssign<T> for Fraction<T>
 where
     T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
@@ -507,7 +508,7 @@ where
         let mut rhs = other;
         mem::swap(&mut self.den, &mut rhs);
         self.normalize();
-        self.den *= rhs;
+        self.den *= rhs; // yep
     }
 }
 
