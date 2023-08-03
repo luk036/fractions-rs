@@ -2,8 +2,12 @@
 name = "fractions-rs"
 version = "0.1.0"
 edition = "2021"
+description = "Fractions in Rust"
+repository = "https://github.com/luk036/fractions-rs"
+license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [lib]
 name = "fractions"
 path = "src/lib.rs"
