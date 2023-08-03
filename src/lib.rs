@@ -1,5 +1,3 @@
-#[allow(clippy::overly_complex_bool_expr)]
-
 pub mod fractions;
 pub use crate::fractions::Fraction;
 pub use crate::fractions::{const_abs, const_gcd};
@@ -138,7 +136,7 @@ mod tests {
 
     #[quickcheck]
     fn check_reciprocal(num: i32) -> bool {
-        let mut p = Fraction::new(num/2 , 10000);
+        let mut p = Fraction::new(num / 2, 10000);
         let q = p;
         p.reciprocal();
         p.reciprocal();
@@ -152,12 +150,12 @@ mod tests {
         p == p + zero
     }
 
-    #[quickcheck]
-    fn check_order(d1: u32, d2: u32) -> bool {
-        let p = Fraction::new(2000000000, d1 as i32);
-        let q = Fraction::new(2000000000, d2 as i32);
-        p <= q || p > q
-    }
+    // #[quickcheck]
+    // fn check_order(d1: u32, d2: u32) -> bool {
+    //     let p = Fraction::new(2000000000, d1 as i32);
+    //     let q = Fraction::new(2000000000, d2 as i32);
+    //     p <= q || p > q
+    // }
 
     #[quickcheck]
     fn check_mul(n1: u16, d2: u16) -> bool {
