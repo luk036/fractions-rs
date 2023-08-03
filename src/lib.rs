@@ -1,3 +1,5 @@
+#[allow(clippy::overly_complex_bool_expr)]
+
 pub mod fractions;
 pub use crate::fractions::Fraction;
 pub use crate::fractions::{const_abs, const_gcd};
@@ -134,14 +136,14 @@ mod tests {
         p == -(-p)
     }
 
-    // #[quickcheck]
-    // fn check_reciprocal(num: i32, den: i32) -> bool {
-    //     let mut p = Fraction::new(num/2 , den/2);
-    //     let q = p;
-    //     p.reciprocal();
-    //     p.reciprocal();
-    //     p == q
-    // }
+    #[quickcheck]
+    fn check_reciprocal(num: i32) -> bool {
+        let mut p = Fraction::new(num/2 , 10000);
+        let q = p;
+        p.reciprocal();
+        p.reciprocal();
+        p == q
+    }
 
     #[quickcheck]
     fn check_default(num: u32, den: u32) -> bool {
