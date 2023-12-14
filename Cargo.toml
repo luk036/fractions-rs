@@ -1,6 +1,6 @@
 [package]
 name = "fractions-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Fractions in Rust"
 repository = "https://github.com/luk036/fractions-rs"
