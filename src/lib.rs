@@ -10,8 +10,8 @@ mod tests {
 
     #[test]
     fn it_works() {
-        const RESULT: i32 = const_gcd(4, -6);
-        assert_eq!(RESULT, 2);
+        let result: i32 = const_gcd(4, -6);
+        assert_eq!(result, 2);
 
         let result = gcd(4, -6);
         assert_eq!(result, 2);
@@ -95,6 +95,12 @@ mod tests {
         assert_eq!(f + g, Fraction::new(19, 12));
         assert_eq!(f - 2, Fraction::new(-5, 4));
         assert_eq!(f + 2, Fraction::new(11, 4));
+    }
+
+    #[test]
+    fn test_abs() {
+        let f = Fraction::new(-3, 4);
+        assert_eq!(f.abs(), Fraction::new(3, 4));
     }
 
     #[test]

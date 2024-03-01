@@ -41,13 +41,14 @@ use std::mem; // for swap
 /// assert_eq!(const_abs(10), 10);
 /// ```
 #[inline]
-pub const fn const_abs(a: i32) -> i32 {
-    if a < 0 {
+pub fn const_abs<T: Integer + Neg<Output = T>>(a: T) -> T {
+    if a < Zero::zero() {
         -a
     } else {
         a
     }
 }
+
 
 /// The function calculates the greatest common divisor (GCD) of two integers using recursion.
 ///
@@ -63,13 +64,14 @@ pub const fn const_abs(a: i32) -> i32 {
 /// The function `gcd_recur` returns the greatest common divisor (GCD) of the two input integers `m` and
 /// `n`.
 #[inline]
-const fn gcd_recur(m: i32, n: i32) -> i32 {
-    if n == 0 {
-        const_abs(m)
+fn gcd_recur<T: Integer + Neg<Output = T> + Copy>(m: T, n: T) -> T {
+    if n == Zero::zero() {
+        const_abs(m) 
     } else {
         gcd_recur(n, m % n)
     }
 }
+
 
 /// The function `const_gcd` calculates the greatest common divisor (GCD) of two integers using
 /// recursion.
@@ -94,8 +96,8 @@ const fn gcd_recur(m: i32, n: i32) -> i32 {
 /// assert_eq!(const_gcd(30, 40), 10);
 /// ```
 #[inline]
-pub const fn const_gcd(m: i32, n: i32) -> i32 {
-    if m == 0 {
+pub fn const_gcd<T: Integer + Neg<Output = T> + Copy>(m: T, n: T) -> T {
+    if m == Zero::zero() {
         const_abs(n)
     } else {
         gcd_recur(m, n)
@@ -178,6 +180,23 @@ where
     pub fn normalize(&mut self) -> T {
         self.normalize1();
         self.normalize2()
+    }
+
+    /// The `abs` function in Rust returns the absolute of a `Fraction` object.
+    ///
+    /// Examples:
+    ///
+    /// ```rust
+    /// use fractions::Fraction;
+    /// let mut f = Fraction::new(-3, 4);
+    ///
+    /// assert_eq!(f.abs(), Fraction::new(3, 4));
+    /// ```
+    #[inline]
+    pub fn abs(self) -> Self {
+        let mut res = self;
+        res.num = const_abs(res.num);
+        res
     }
 }
 
