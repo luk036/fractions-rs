@@ -1,3 +1,14 @@
+//! Fraction numbers
+//!
+//! ## Compatibility
+//!
+//! The `fractions-rs` crate is tested for rustc 1.31 and greater.
+
+#![no_std]
+// Fraction ops often use other "suspicious" ops
+#![allow(clippy::suspicious_arithmetic_impl)]
+#![allow(clippy::suspicious_op_assign_impl)]
+
 pub mod fractions;
 pub use crate::fractions::Fraction;
 pub use crate::fractions::{const_abs, const_gcd};
@@ -104,6 +115,19 @@ mod tests {
     }
 
     #[test]
+    fn test_neg() {
+        let f = Fraction::new(-3, 4);
+        assert_eq!(-f, f.abs());
+    }
+
+    // #[test]
+    // fn test_signum() {
+    //     let f = Fraction::new(-3, 4);
+    //     assert_eq2(f.signum(), -1);
+    //     assert_eq2(Fraction::<i8>::default().signum(), 0);
+    // }
+    
+    #[test]
     fn test_special() {
         let zero = Fraction::new(0, 1);
         let infp = Fraction::new(1, 0);
@@ -129,20 +153,20 @@ mod tests {
     }
 
     #[quickcheck]
-    fn check_eq(num: u32, den: u32) -> bool {
-        let p = Fraction::new(num as i32, den as i32);
+    fn check_eq(numer: u32, denom: u32) -> bool {
+        let p = Fraction::new(numer as i32, denom as i32);
         p == p
     }
 
     #[quickcheck]
-    fn check_neg(num: u32, den: u32) -> bool {
-        let p = Fraction::new(num as i32, den as i32);
+    fn check_neg(numer: u32, denom: u32) -> bool {
+        let p = Fraction::new(numer as i32, denom as i32);
         p == -(-p)
     }
 
     #[quickcheck]
-    fn check_reciprocal(num: i32) -> bool {
-        let mut p = Fraction::new(num / 2, 10000);
+    fn check_reciprocal(numer: i32) -> bool {
+        let mut p = Fraction::new(numer / 2, 10000);
         let q = p;
         p.reciprocal();
         p.reciprocal();
@@ -150,18 +174,11 @@ mod tests {
     }
 
     #[quickcheck]
-    fn check_default(num: u32, den: u32) -> bool {
-        let p = Fraction::new(num as i32, den as i32);
+    fn check_default(numer: u32, denom: u32) -> bool {
+        let p = Fraction::new(numer as i32, denom as i32);
         let zero = Fraction::<i32>::default();
         p == p + zero
     }
-
-    // #[quickcheck]
-    // fn check_order(d1: u32, d2: u32) -> bool {
-    //     let p = Fraction::new(2000000000, d1 as i32);
-    //     let q = Fraction::new(2000000000, d2 as i32);
-    //     p <= q || p > q
-    // }
 
     #[quickcheck]
     fn check_mul(n1: u16, d2: u16) -> bool {
