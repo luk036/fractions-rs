@@ -126,7 +126,7 @@ mod tests {
     //     assert_eq2(f.signum(), -1);
     //     assert_eq2(Fraction::<i8>::default().signum(), 0);
     // }
-    
+
     #[test]
     fn test_special() {
         let zero = Fraction::new(0, 1);

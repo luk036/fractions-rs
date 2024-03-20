@@ -10,7 +10,7 @@ use core::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 // use core::str::FromStr;
 use num_integer::gcd;
 use num_integer::Integer;
-use num_traits::{Num, NumAssign, Signed, One, Zero, Inv};
+use num_traits::{Inv, Num, NumAssign, One, Signed, Zero};
 // #[cfg(feature = "std")]
 // use std::error::Error;
 use core::cmp::Ordering;
@@ -134,9 +134,9 @@ impl<T> Fraction<T> {
     ///
     /// **There are several methods that will panic if used on a `Fraction` with
     /// `denom == 0`.**
-    /// 
+    ///
     /// Examples:
-    /// 
+    ///
     /// ```rust
     /// use fractions::Fraction;
     /// let f = Fraction::new_raw(10, 2); // 5/1
@@ -171,14 +171,14 @@ impl<T: Clone + Integer> Fraction<T> {
     }
 
     /// Checks if the fraction is equal to zero.
-    /// 
+    ///
     /// Returns `true` if the numerator is zero and the denominator is non-zero.
     #[inline]
     pub fn is_zero(&self) -> bool {
         self.numer.is_zero() && !self.denom.is_zero()
     }
 
-    /// Sets the fraction to zero by setting the numerator to zero and 
+    /// Sets the fraction to zero by setting the numerator to zero and
     /// the denominator to one.
     #[inline]
     pub fn set_zero(&mut self) {
@@ -229,7 +229,6 @@ impl<T: Clone + Integer> Fraction<T> {
         self.denom.set_one();
     }
 }
-
 
 impl<T> Fraction<T>
 where
@@ -309,9 +308,9 @@ where
     #[inline]
     pub fn abs(&self) -> Fraction<T> {
         if self.is_negative() {
-            -self.clone()
+            -*self
         } else {
-            self.clone()
+            *self
         }
     }
 
@@ -336,7 +335,6 @@ where
         self.numer.is_negative()
     }
 }
-
 
 impl<T: Integer + Zero + One + DivAssign + Copy> Fraction<T> {
     /// The `reduce` function normalizes a fraction to its canonical form by dividing both the
@@ -447,7 +445,7 @@ impl<T: Integer + Copy> Fraction<T> {
     /// Returns:
     ///
     /// The cross product of two values of type T.
-    /// 
+    ///
     /// Example:
     /// ```rust
     /// use fractions::Fraction;
@@ -511,11 +509,11 @@ where
 {
     type Output = Fraction<T>;
 
-    /// Negates the given immutable fraction reference by cloning and negating 
+    /// Negates the given immutable fraction reference by cloning and negating
     /// the clone.
-    /// 
+    ///
     /// Example:
-    /// 
+    ///
     /// ```rust
     /// use fractions::Fraction;
     /// let f = Fraction::new(3, 4);
@@ -535,12 +533,12 @@ where
     type Output = Fraction<T>;
 
     /// The `inv` function inverts the `Fraction` object in place.
-    /// 
-    /// It clones the fraction, calls `reciprocal` on the clone to invert it, 
+    ///
+    /// It clones the fraction, calls `reciprocal` on the clone to invert it,
     /// and returns the inverted fraction, leaving the original unchanged.
-    /// 
+    ///
     /// Example:
-    /// 
+    ///
     /// ```rust
     /// use num_traits::ops::inv::Inv;
     /// use fractions::Fraction;
@@ -550,12 +548,11 @@ where
     /// ```
     #[inline]
     fn inv(self) -> Fraction<T> {
-        let mut res = self.clone();
+        let mut res = self;
         res.reciprocal();
         res
     }
 }
-
 
 impl<T: Integer + PartialEq + Copy + DivAssign> PartialEq<T> for Fraction<T> {
     /// The above code is defining a Rust documentation comment for a function called `Equal to`. It
