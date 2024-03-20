@@ -49,7 +49,6 @@ pub fn const_abs<T: Integer + Neg<Output = T>>(a: T) -> T {
     }
 }
 
-
 /// The function calculates the greatest common divisor (GCD) of two integers using recursion.
 ///
 /// Arguments:
@@ -66,12 +65,11 @@ pub fn const_abs<T: Integer + Neg<Output = T>>(a: T) -> T {
 #[inline]
 fn gcd_recur<T: Integer + Neg<Output = T> + Copy>(m: T, n: T) -> T {
     if n == Zero::zero() {
-        const_abs(m) 
+        const_abs(m)
     } else {
         gcd_recur(n, m % n)
     }
 }
-
 
 /// The function `const_gcd` calculates the greatest common divisor (GCD) of two integers using
 /// recursion.
