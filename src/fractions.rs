@@ -383,7 +383,7 @@ impl<T: Integer + Zero + Neg<Output = T> + Ord + Copy> Fraction<T> {
     }
 }
 
-impl<T: Integer + One> Fraction<T> {
+impl<T: Integer + One> From<T> for Fraction<T> {
     /// The `from` function in Rust creates a `Fraction` struct from an integer.
     ///
     /// Arguments:
@@ -399,11 +399,11 @@ impl<T: Integer + One> Fraction<T> {
     ///
     /// ```rust
     /// use fractions::Fraction;
-    /// let mut f = Fraction::from(3);
-    /// assert_eq!(f, Fraction::new(3, 1));
+    /// let mut f = Fraction::<i32>::from(3);
+    /// assert_eq!(f, Fraction::<i32>::new(3, 1));
     /// ```
     #[inline]
-    pub fn from(numer: T) -> Self {
+    fn from(numer: T) -> Self {
         Fraction {
             numer,
             denom: One::one(),
@@ -434,6 +434,16 @@ impl<T: Integer + One + Zero> Default for Fraction<T> {
         }
     }
 }
+
+// From integer
+// impl<T> From<T> for Fraction<T>
+// where
+//     T: Clone + Integer,
+// {
+//     fn from(x: T) -> Fraction<T> {
+//         Fraction::new_raw(x, One::one())
+//     }
+// }
 
 impl<T: Integer + Copy> Fraction<T> {
     /// The `cross` function calculates the cross product of two values.
