@@ -16,6 +16,10 @@ use num_traits::{Inv, Num, NumAssign, One, Signed, Zero};
 use core::cmp::Ordering;
 use core::mem; // for swap
 
+use core::fmt;
+use core::fmt::{Binary, Display, Formatter, LowerExp, LowerHex, Octal, UpperExp, UpperHex};
+use core::hash::{Hash, Hasher};
+
 // #[inline]
 // pub const fn const_abs2<T>(a: T) -> T
 // where T: Integer + Neg<Output = T> + Zero + ~const std::cmp::PartialOrd,
@@ -336,6 +340,72 @@ where
     }
 }
 
+// String conversions
+macro_rules! impl_formatting {
+    ($fmt_trait:ident, $prefix:expr, $fmt_str:expr, $fmt_alt:expr) => {
+        impl<T: $fmt_trait + Clone + Integer> $fmt_trait for Fraction<T> {
+            #[cfg(feature = "std")]
+            fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+                let pre_pad = if self.denom.is_one() {
+                    format!($fmt_str, self.numer)
+                } else {
+                    if f.alternate() {
+                        format!(concat!($fmt_str, "/", $fmt_alt), self.numer, self.denom)
+                    } else {
+                        format!(concat!($fmt_str, "/", $fmt_str), self.numer, self.denom)
+                    }
+                };
+                // TODO: replace with strip_prefix, when stabalized
+                let (pre_pad, non_negative) = {
+                    if pre_pad.starts_with("-") {
+                        (&pre_pad[1..], false)
+                    } else {
+                        (&pre_pad[..], true)
+                    }
+                };
+                f.pad_integral(non_negative, $prefix, pre_pad)
+            }
+            #[cfg(not(feature = "std"))]
+            fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+                let plus = if f.sign_plus() && self.numer >= T::zero() {
+                    "+"
+                } else {
+                    ""
+                };
+                if self.denom.is_one() {
+                    if f.alternate() {
+                        write!(f, concat!("{}", $fmt_alt), plus, self.numer)
+                    } else {
+                        write!(f, concat!("{}", $fmt_str), plus, self.numer)
+                    }
+                } else {
+                    if f.alternate() {
+                        write!(
+                            f,
+                            concat!("{}", $fmt_alt, "/", $fmt_alt),
+                            plus, self.numer, self.denom
+                        )
+                    } else {
+                        write!(
+                            f,
+                            concat!("{}", $fmt_str, "/", $fmt_str),
+                            plus, self.numer, self.denom
+                        )
+                    }
+                }
+            }
+        }
+    };
+}
+
+impl_formatting!(Display, "", "{}", "{:#}");
+impl_formatting!(Octal, "0o", "{:o}", "{:#o}");
+impl_formatting!(Binary, "0b", "{:b}", "{:#b}");
+impl_formatting!(LowerHex, "0x", "{:x}", "{:#x}");
+impl_formatting!(UpperHex, "0x", "{:X}", "{:#X}");
+impl_formatting!(LowerExp, "", "{:e}", "{:#e}");
+impl_formatting!(UpperExp, "", "{:E}", "{:#E}");
+
 impl<T: Integer + Zero + One + DivAssign + Copy> Fraction<T> {
     /// The `reduce` function normalizes a fraction to its canonical form by dividing both the
     /// numerator and denominator by their greatest common divisor.
@@ -406,6 +476,34 @@ impl<T: Integer + One> From<T> for Fraction<T> {
     fn from(numer: T) -> Self {
         Fraction {
             numer,
+            denom: One::one(),
+        }
+    }
+}
+
+impl From<i32> for Fraction<i64> {
+    /// The `from` function in Rust creates a `Fraction` struct from an integer.
+    ///
+    /// Arguments:
+    ///
+    /// * `numer`: The `numer` parameter is an integer value that will be used to create a new `Fraction`
+    /// object.
+    ///
+    /// Returns:
+    ///
+    /// The `from` function returns a `Fraction` struct.
+    ///
+    /// Examples:
+    ///
+    /// ```rust
+    /// use fractions::Fraction;
+    /// let mut f = Fraction::<i64>::from(3);
+    /// assert_eq!(f, Fraction::<i64>::new(3, 1));
+    /// ```
+    #[inline]
+    fn from(i: i32) -> Self {
+        Fraction {
+            numer: i as i64,
             denom: One::one(),
         }
     }

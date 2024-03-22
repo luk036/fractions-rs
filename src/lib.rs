@@ -4,7 +4,7 @@
 //!
 //! The `fractions-rs` crate is tested for rustc 1.31 and greater.
 
-#![no_std]
+// #![no_std]
 // Fraction ops often use other "suspicious" ops
 #![allow(clippy::suspicious_arithmetic_impl)]
 #![allow(clippy::suspicious_op_assign_impl)]
@@ -233,5 +233,13 @@ mod tests {
         let q_2 = Fraction::<i32>::new(1, 4);
         let q_3 = Fraction::<i32>::new(1, 6);
         assert_eq!(archimedes(&q_1, &q_2, &q_3), Fraction::<i32>::new(23, 144));
+    }
+
+    #[test]
+    fn test_archimedes5() {
+        let q_1 = Fraction::<i64>::new(1, 2);
+        let q_2 = Fraction::<i64>::new(1, 4);
+        let q_3 = Fraction::<i64>::new(1, 6);
+        assert_eq!(archimedes(&q_1, &q_2, &q_3), Fraction::<i64>::new(23, 144));
     }
 }
