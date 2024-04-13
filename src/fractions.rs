@@ -341,70 +341,70 @@ where
 }
 
 // String conversions
-macro_rules! impl_formatting {
-    ($fmt_trait:ident, $prefix:expr, $fmt_str:expr, $fmt_alt:expr) => {
-        impl<T: $fmt_trait + Clone + Integer> $fmt_trait for Fraction<T> {
-            #[cfg(feature = "std")]
-            fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-                let pre_pad = if self.denom.is_one() {
-                    format!($fmt_str, self.numer)
-                } else {
-                    if f.alternate() {
-                        format!(concat!($fmt_str, "/", $fmt_alt), self.numer, self.denom)
-                    } else {
-                        format!(concat!($fmt_str, "/", $fmt_str), self.numer, self.denom)
-                    }
-                };
-                // TODO: replace with strip_prefix, when stabalized
-                let (pre_pad, non_negative) = {
-                    if pre_pad.starts_with("-") {
-                        (&pre_pad[1..], false)
-                    } else {
-                        (&pre_pad[..], true)
-                    }
-                };
-                f.pad_integral(non_negative, $prefix, pre_pad)
-            }
-            #[cfg(not(feature = "std"))]
-            fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-                let plus = if f.sign_plus() && self.numer >= T::zero() {
-                    "+"
-                } else {
-                    ""
-                };
-                if self.denom.is_one() {
-                    if f.alternate() {
-                        write!(f, concat!("{}", $fmt_alt), plus, self.numer)
-                    } else {
-                        write!(f, concat!("{}", $fmt_str), plus, self.numer)
-                    }
-                } else {
-                    if f.alternate() {
-                        write!(
-                            f,
-                            concat!("{}", $fmt_alt, "/", $fmt_alt),
-                            plus, self.numer, self.denom
-                        )
-                    } else {
-                        write!(
-                            f,
-                            concat!("{}", $fmt_str, "/", $fmt_str),
-                            plus, self.numer, self.denom
-                        )
-                    }
-                }
-            }
-        }
-    };
-}
+// macro_rules! impl_formatting {
+//     ($fmt_trait:ident, $prefix:expr, $fmt_str:expr, $fmt_alt:expr) => {
+//         impl<T: $fmt_trait + Clone + Integer> $fmt_trait for Fraction<T> {
+//             #[cfg(feature = "std")]
+//             fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+//                 let pre_pad = if self.denom.is_one() {
+//                     format!($fmt_str, self.numer)
+//                 } else {
+//                     if f.alternate() {
+//                         format!(concat!($fmt_str, "/", $fmt_alt), self.numer, self.denom)
+//                     } else {
+//                         format!(concat!($fmt_str, "/", $fmt_str), self.numer, self.denom)
+//                     }
+//                 };
+//                 // TODO: replace with strip_prefix, when stabalized
+//                 let (pre_pad, non_negative) = {
+//                     if pre_pad.starts_with("-") {
+//                         (&pre_pad[1..], false)
+//                     } else {
+//                         (&pre_pad[..], true)
+//                     }
+//                 };
+//                 f.pad_integral(non_negative, $prefix, pre_pad)
+//             }
+//             #[cfg(not(feature = "std"))]
+//             fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+//                 let plus = if f.sign_plus() && self.numer >= T::zero() {
+//                     "+"
+//                 } else {
+//                     ""
+//                 };
+//                 if self.denom.is_one() {
+//                     if f.alternate() {
+//                         write!(f, concat!("{}", $fmt_alt), plus, self.numer)
+//                     } else {
+//                         write!(f, concat!("{}", $fmt_str), plus, self.numer)
+//                     }
+//                 } else {
+//                     if f.alternate() {
+//                         write!(
+//                             f,
+//                             concat!("{}", $fmt_alt, "/", $fmt_alt),
+//                             plus, self.numer, self.denom
+//                         )
+//                     } else {
+//                         write!(
+//                             f,
+//                             concat!("{}", $fmt_str, "/", $fmt_str),
+//                             plus, self.numer, self.denom
+//                         )
+//                     }
+//                 }
+//             }
+//         }
+//     };
+// }
 
-impl_formatting!(Display, "", "{}", "{:#}");
-impl_formatting!(Octal, "0o", "{:o}", "{:#o}");
-impl_formatting!(Binary, "0b", "{:b}", "{:#b}");
-impl_formatting!(LowerHex, "0x", "{:x}", "{:#x}");
-impl_formatting!(UpperHex, "0x", "{:X}", "{:#X}");
-impl_formatting!(LowerExp, "", "{:e}", "{:#e}");
-impl_formatting!(UpperExp, "", "{:E}", "{:#E}");
+// impl_formatting!(Display, "", "{}", "{:#}");
+// impl_formatting!(Octal, "0o", "{:o}", "{:#o}");
+// impl_formatting!(Binary, "0b", "{:b}", "{:#b}");
+// impl_formatting!(LowerHex, "0x", "{:x}", "{:#x}");
+// impl_formatting!(UpperHex, "0x", "{:X}", "{:#X}");
+// impl_formatting!(LowerExp, "", "{:e}", "{:#e}");
+// impl_formatting!(UpperExp, "", "{:E}", "{:#E}");
 
 impl<T: Integer + Zero + One + DivAssign + Copy> Fraction<T> {
     /// The `reduce` function normalizes a fraction to its canonical form by dividing both the
@@ -1176,253 +1176,3 @@ forward_op!(impl Add, add, add_assign);
 forward_op!(impl Sub, sub, sub_assign);
 forward_op!(impl Mul, mul, mul_assign);
 forward_op!(impl Div, div, div_assign);
-
-// /**
-//  * @brief multiply
-//  *
-//  * @param lhs
-//  * @param rhs
-//  * @return Fraction
-//  */
-// pub fn operator*(Fraction lhs, const Fraction& rhs) -> Fraction {
-//     return lhs *= rhs;
-// }
-//
-// /**
-//  * @brief multiply
-//  *
-//  * @param lhs
-//  * @param rhs
-//  * @return Fraction
-//  */
-// pub fn operator*(Fraction lhs, const T& rhs) -> Fraction {
-//     return lhs *= rhs;
-// }
-//
-// /**
-//  * @brief multiply
-//  *
-//  * @param lhs
-//  * @param rhs
-//  * @return Fraction
-//  */
-// pub fn operator*(const T& lhs, Fraction rhs) -> Fraction {
-//     return rhs *= lhs;
-// }
-//
-// /**
-//  * @brief divide
-//  *
-//  * @param lhs
-//  * @param rhs
-//  * @return Fraction
-//  */
-// pub fn operator/(Fraction lhs, const Fraction& rhs) -> Fraction {
-//     return lhs /= rhs;
-// }
-//
-// /**
-//  * @brief divide
-//  *
-//  * @param lhs
-//  * @param rhs
-//  * @return Fraction
-//  */
-// pub fn operator/(Fraction lhs, const T& rhs) -> Fraction {
-//     return lhs /= rhs;
-// }
-//
-// /**
-//  * @brief divide
-//  *
-//  * @param lhs
-//  * @param rhs
-//  * @return Fraction
-//  */
-// pub fn operator/(const T& lhs, Fraction rhs) -> Fraction {
-//     rhs.reciprocal();
-//     return rhs *= lhs;
-// }
-//
-// /**
-//  * @brief Add
-//  *
-//  * @param rhs
-//  * @return Fraction
-//  */
-// pub fn operator+(const Fraction& rhs) const -> Fraction {
-//     if self.denom == rhs.denom {
-//         return Fraction(self.numer + rhs.numer, self.denom);
-//     }
-//     let common = gcd(self.denom, rhs.denom);
-//     if common == Zero::zero() {
-//         return Fraction(rhs.denom * self.numer + self.denom * rhs.numer, Zero::zero());
-//     }
-//     let l = self.denom / common;
-//     let r = rhs.denom / common;
-//     let mut d = self.denom * r;
-//     let mut n = r * self.numer + l * rhs.numer;
-//     return Fraction(std::move(n), std::move(d));
-// }
-//
-// /**
-//  * @brief Subtract
-//  *
-//  * @param[in] frac
-//  * @return Fraction
-//  */
-// pub fn operator-(const Fraction& frac) const -> Fraction { return *this + (-frac); }
-//
-// /**
-//  * @brief Add
-//  *
-//  * @param[in] frac
-//  * @param[in] i
-//  * @return Fraction
-//  */
-// pub fn operator+(Fraction frac, const T& i) -> Fraction { return frac += i; }
-//
-// /**
-//  * @brief Add
-//  *
-//  * @param[in] i
-//  * @param[in] frac
-//  * @return Fraction
-//  */
-// pub fn operator+(const T& i, Fraction frac) -> Fraction { return frac += i; }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] i
-//  * @return Fraction
-//  */
-// pub fn operator-(const T& i) const -> Fraction { return *this + (-i); }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] rhs
-//  * @return Fraction
-//  */
-// pub fn operator+=(const Fraction& rhs) -> Fraction& { return *this -= (-rhs); }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] rhs
-//  * @return Fraction
-//  */
-// pub fn operator-=(const Fraction& rhs) -> Fraction& {
-//     if self.denom == rhs.denom {
-//         self.numer -= rhs.numer;
-//         self.reduce();
-//         return *this;
-//     }
-//
-//     let mut other{rhs};
-//     mem::swap(&mut self.denom, &mut other.numer);
-//     let mut common_n = self.reduce();
-//     let mut common_d = other.reduce();
-//     mem::swap(&mut self.denom, &mut other.numer);
-//     self.numer = self.cross(other);
-//     self.denom *= other.denom;
-//     mem::swap(&mut self.denom, &mut common_d);
-//     self.reduce();
-//     self.numer *= common_n;
-//     self.denom *= common_d;
-//     self.reduce();
-//     return *this;
-// }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] i
-//  * @return Fraction
-//  */
-// pub fn operator+=(const T& i) -> Fraction& { return *this -= (-i); }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] rhs
-//  * @return Fraction
-//  */
-// pub fn operator-=(const T& rhs) -> Fraction& {
-//     if self.denom == One::one() {
-//         self.numer -= rhs;
-//         return *this;
-//     }
-//
-//     let mut other{rhs};
-//     mem::swap(&mut self.denom, &mut other);
-//     let mut common_n = self.reduce();
-//     mem::swap(&mut self.denom, &mut other);
-//     self.numer -= other * self.denom;
-//     self.numer *= common_n;
-//     self.reduce();
-//     return *this;
-// }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] c
-//  * @param[in] frac
-//  * @return Fraction
-//  */
-// pub fn operator-(const T& c, const Fraction& frac) -> Fraction {
-//     return c + (-frac);
-// }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] c
-//  * @param[in] frac
-//  * @return Fraction
-//  */
-// pub fn operator+(int&& c, const Fraction& frac) -> Fraction {
-//     return frac + T(c);
-// }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] c
-//  * @param[in] frac
-//  * @return Fraction
-//  */
-// pub fn operator-(int&& c, const Fraction& frac) -> Fraction {
-//     return (-frac) + T(c);
-// }
-//
-// /**
-//  * @brief
-//  *
-//  * @param[in] c
-//  * @param[in] frac
-//  * @return Fraction<T>
-//  */
-// pub fn operator*(int&& c, const Fraction& frac) -> Fraction {
-//     return frac * T(c);
-// }
-//
-// /**
-//  * @brief
-//  *
-//  * @tparam _Stream
-//  * @tparam T
-//  * @param[in] os
-//  * @param[in] frac
-//  * @return _Stream&
-//  */
-// template <typename _Stream> pub fn operator<<(_Stream& os, const Fraction& frac)
-//     -> _Stream& {
-//     os << "(" << frac.numer() << "/" << frac.denom() << ")";
-//     return os;
-// }
-
-// For template deduction
-// Integral{T} Fraction(const T &, const T &) noexcept -> Fraction<T>;
