@@ -1,6 +1,7 @@
 Sure, here's an example of a generic Fraction class in Rust that accepts different negative integer types, along with a corresponding test module:
 
 Fraction.rs
+
 ```rust
 use std::num::One;
 
@@ -57,6 +58,7 @@ impl<T> Fraction<T> {
 ```
 
 FractionTest.rs
+
 ```
 use std::testing::{assert_eq};
 use Fraction;
@@ -109,6 +111,7 @@ fn test_fraction_negative_numbers() {
     assert_eq!(f1.add(&f2), Fraction::<i32>::new(-1, 2));
 }
 ```
+
 In this implementation, we've made the `Fraction` struct generic over an integer type `T`. We've also updated the `Fraction::new` method to take two parameters of type `T` and `T` respectively. Additionally, we've updated the `greatest_common_divisor` method to return a `T` value.
 
 In the test module, we've written six test cases that exercise the different methods of the `Fraction` struct, just like in the previous example. However, this time we've used the `i32` type to create the fractions.
