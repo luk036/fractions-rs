@@ -1,4 +1,4 @@
-# fractions-rs
+# ➗ fractions-rs
 
 [![Crates.io](https://img.shields.io/crates/v/fractions-rs.svg)](https://crates.io/crates/fractions-rs)
 [![Docs.rs](https://docs.rs/fractions-rs/badge.svg)](https://docs.rs/fractions-rs)
