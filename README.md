@@ -7,13 +7,13 @@
 
 ## Installation
 
-### Cargo
+### 📦 Cargo
 
 - Install the rust toolchain in order to have cargo installed by following
   [this](https://www.rust-lang.org/tools/install) guide.
 - run `cargo install fractions-rs`
 
-## License
+## 📜 License
 
 Licensed under either of
 
@@ -24,7 +24,7 @@ Licensed under either of
 
 at your option.
 
-## Contribution
+## 🤝 Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
