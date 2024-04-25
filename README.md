@@ -5,7 +5,7 @@
 [![CI](https://github.com/luk036/fractions-rs/workflows/CI/badge.svg)](https://github.com/luk036/fractions-rs/actions)
 [![codecov](https://codecov.io/gh/luk036/fractions-rs/branch/main/graph/badge.svg?token=txcnTQXxiC)](https://codecov.io/gh/luk036/fractions-rs)
 
-## Installation
+## 🛠️ Installation
 
 ### 📦 Cargo
 
