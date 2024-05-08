@@ -59,7 +59,7 @@ features = ["i128"]
 default-features = false
 
 [dependencies.num-traits]
-version = "0.2.18"
+version = "0.2.19"
 features = ["i128"]
 default-features = false
 
