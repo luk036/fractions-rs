@@ -64,7 +64,7 @@ features = ["i128"]
 default-features = false
 
 [dependencies.serde]
-version = "1.0.206"
+version = "1.0.208"
 optional = true
 default-features = false
 
