@@ -609,7 +609,7 @@ where
     }
 }
 
-impl<'a, T> Neg for &'a Fraction<T>
+impl<T> Neg for &Fraction<T>
 where
     T: Clone + Integer + Neg<Output = T>,
 {
