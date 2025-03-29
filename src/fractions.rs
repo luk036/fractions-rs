@@ -1542,7 +1542,7 @@ mod tests {
     fn test_fraction_abs() {
         let f = Fraction::new(-3, 4);
         assert_eq!(f.abs(), Fraction::new(3, 4));
-        
+
         let f = Fraction::new(3, -4);
         assert_eq!(f.abs(), Fraction::new(3, 4));
     }
@@ -1550,10 +1550,10 @@ mod tests {
     #[test]
     fn test_fraction_increment_decrement() {
         let f = Fraction::new(3, 2);
-        
+
         assert_eq!(f.clone() + 1, Fraction::new(5, 2));
         assert_eq!(f.clone() - 1, Fraction::new(1, 2));
-        
+
         // assert_eq!(++f, Fraction::new(5, 2));
         // assert_eq!(f--, Fraction::new(5, 2));
         assert_eq!(f, Fraction::new(3, 2));
