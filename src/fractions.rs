@@ -1362,4 +1362,211 @@ mod tests {
         let q = Fraction::new(n2 as i128, 2000000009_i128);
         p == (p + q) - q
     }
+
+    #[test]
+    fn test_const_abs() {
+        assert_eq!(const_abs(-10), 10);
+        assert_eq!(const_abs(10), 10);
+        assert_eq!(const_abs(0), 0);
+    }
+
+    #[test]
+    fn test_const_gcd() {
+        assert_eq!(const_gcd(30, -40), 10);
+        assert_eq!(const_gcd(30, 40), 10);
+        assert_eq!(const_gcd(0, 5), 5);
+        assert_eq!(const_gcd(5, 0), 5);
+        assert_eq!(const_gcd(-30, -40), 10);
+    }
+
+    #[test]
+    fn test_fraction_construction() {
+        // Default construction
+        let f: Fraction<i32> = Fraction::default();
+        assert_eq!(f.numer(), &0);
+        assert_eq!(f.denom(), &1);
+
+        // From integer
+        // let f = Fraction::from(5);
+        let f = Fraction::new(5, 1);
+        assert_eq!(f.numer(), &5);
+        assert_eq!(f.denom(), &1);
+
+        // New raw
+        let f = Fraction::new_raw(3, 4);
+        assert_eq!(f.numer(), &3);
+        assert_eq!(f.denom(), &4);
+
+        // New with normalization
+        let f = Fraction::new(2, 4);
+        assert_eq!(f.numer(), &1);
+        assert_eq!(f.denom(), &2);
+
+        // Negative denominator
+        let f = Fraction::new(3, -4);
+        assert_eq!(f.numer(), &-3);
+        assert_eq!(f.denom(), &4);
+    }
+
+    #[test]
+    fn test_fraction_normalization() {
+        let mut f = Fraction::new_raw(4, 6);
+        assert_eq!(f.reduce(), 2);
+        assert_eq!(f.numer(), &2);
+        assert_eq!(f.denom(), &3);
+
+        let mut f = Fraction::new_raw(3, -4);
+        f.keep_denom_positive();
+        assert_eq!(f.numer(), &-3);
+        assert_eq!(f.denom(), &4);
+
+        let mut f = Fraction::new_raw(10, -5);
+        f.normalize();
+        assert_eq!(f.numer(), &-2);
+        assert_eq!(f.denom(), &1);
+    }
+
+    #[test]
+    fn test_fraction_arithmetic() {
+        let f1 = Fraction::new(1, 2);
+        let f2 = Fraction::new(1, 3);
+
+        // Addition
+        assert_eq!(f1 + f2, Fraction::new(5, 6));
+        assert_eq!(f1 + 1, Fraction::new(3, 2));
+
+        // Subtraction
+        assert_eq!(f1 - f2, Fraction::new(1, 6));
+        assert_eq!(f1 - 1, Fraction::new(-1, 2));
+
+        // Multiplication
+        assert_eq!(f1 * f2, Fraction::new(1, 6));
+        assert_eq!(f1 * 2, Fraction::new(1, 1));
+
+        // Division
+        assert_eq!(f1 / f2, Fraction::new(3, 2));
+        assert_eq!(f1 / 2, Fraction::new(1, 4));
+
+        // Negation
+        assert_eq!(-f1, Fraction::new(-1, 2));
+
+        // Reciprocal
+        assert_eq!(f1.inv(), Fraction::new(2, 1));
+    }
+
+    #[test]
+    fn test_fraction_comparison() {
+        let f1 = Fraction::new(1, 2);
+        let f2 = Fraction::new(1, 3);
+        let f3 = Fraction::new(2, 4);
+
+        // Equality
+        assert_eq!(f1, f3);
+        assert_ne!(f1, f2);
+        assert_eq!(Fraction::from(3), 3);
+        assert_eq!(3, Fraction::from(3));
+
+        // Ordering
+        assert!(f1 > f2);
+        assert!(f2 < f1);
+        assert!(f1 >= f3);
+        assert!(f1 <= f3);
+        assert!(Fraction::new(3, 2) > 1);
+        assert!(1 < Fraction::new(3, 2));
+    }
+
+    #[test]
+    fn test_fraction_compound_assign() {
+        let mut f = Fraction::new(1, 2);
+
+        f += Fraction::new(1, 3);
+        assert_eq!(f, Fraction::new(5, 6));
+
+        f -= Fraction::new(1, 6);
+        assert_eq!(f, Fraction::new(2, 3));
+
+        f *= Fraction::new(3, 2);
+        assert_eq!(f, Fraction::new(1, 1));
+
+        f /= Fraction::new(2, 1);
+        assert_eq!(f, Fraction::new(1, 2));
+
+        f += 1;
+        assert_eq!(f, Fraction::new(3, 2));
+
+        f -= 1;
+        assert_eq!(f, Fraction::new(1, 2));
+
+        f *= 2;
+        assert_eq!(f, Fraction::new(1, 1));
+
+        f /= 2;
+        assert_eq!(f, Fraction::new(1, 2));
+    }
+
+    #[test]
+    fn test_fraction_special_values() {
+        // let zero = Fraction::zero();
+        let zero = Fraction::new(0, 1);
+        assert!(zero.is_zero());
+        assert!(!zero.is_infinite());
+        assert!(!zero.is_nan());
+
+        let mut f = Fraction::new(1, 1);
+        f.set_zero();
+        assert!(f.is_zero());
+
+        let inf = Fraction::new_raw(1, 0);
+        assert!(inf.is_infinite());
+        assert!(!inf.is_nan());
+
+        let nan = Fraction::new_raw(0, 0);
+        assert!(nan.is_nan());
+        assert!(!nan.is_infinite());
+    }
+
+    #[test]
+    fn test_fraction_cross_product() {
+        let f1 = Fraction::new(3, 4);
+        let f2 = Fraction::new(-5, 6);
+        assert_eq!(f1.cross(&f2), 38);
+    }
+
+    #[test]
+    fn test_fraction_from_i32_to_i64() {
+        let f: Fraction<i64> = Fraction::from(3_i32);
+        assert_eq!(f, Fraction::new(3, 1));
+    }
+
+    #[test]
+    fn test_fraction_abs() {
+        let f = Fraction::new(-3, 4);
+        assert_eq!(f.abs(), Fraction::new(3, 4));
+        
+        let f = Fraction::new(3, -4);
+        assert_eq!(f.abs(), Fraction::new(3, 4));
+    }
+
+    #[test]
+    fn test_fraction_increment_decrement() {
+        let f = Fraction::new(3, 2);
+        
+        assert_eq!(f.clone() + 1, Fraction::new(5, 2));
+        assert_eq!(f.clone() - 1, Fraction::new(1, 2));
+        
+        // assert_eq!(++f, Fraction::new(5, 2));
+        // assert_eq!(f--, Fraction::new(5, 2));
+        assert_eq!(f, Fraction::new(3, 2));
+    }
+
+    // #[test]
+    // fn test_fraction_with_different_types() {
+    //     let f_u32 = Fraction::new(1u32, 2u32);
+    //     assert_eq!(f_u32.numer(), &1);
+    //     assert_eq!(f_u32.denom(), &2);
+
+    //     let f_i64 = Fraction::new(-1i64, 2i64);
+    //     assert_eq!(f_i64.numer(), &-1);
+    //     assert_eq!(f_i64.denom(), &2);
+    // }
 }
