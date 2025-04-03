@@ -1551,8 +1551,8 @@ mod tests {
     fn test_fraction_increment_decrement() {
         let f = Fraction::new(3, 2);
 
-        assert_eq!(f.clone() + 1, Fraction::new(5, 2));
-        assert_eq!(f.clone() - 1, Fraction::new(1, 2));
+        assert_eq!(f + 1, Fraction::new(5, 2));
+        assert_eq!(f - 1, Fraction::new(1, 2));
 
         // assert_eq!(++f, Fraction::new(5, 2));
         // assert_eq!(f--, Fraction::new(5, 2));
