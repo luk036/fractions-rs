@@ -59,3 +59,6 @@ mod tests {
         assert_eq!(archimedes(&q_1, &q_2, &q_3), Fraction::<i64>::new(23, 144));
     }
 }
+
+#[cfg(test)]
+mod more_tests;

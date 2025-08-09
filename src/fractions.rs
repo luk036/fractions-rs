@@ -214,6 +214,22 @@ impl<T: Clone + Integer> Fraction<T> {
     pub fn is_nan(&self) -> bool {
         self.numer.is_zero() && self.denom.is_zero()
     }
+
+    /// Sets the fraction to NaN (not a number) by setting both the
+    /// numerator and denominator to zero.
+    #[inline]
+    pub fn set_nan(&mut self) {
+        self.numer.set_zero();
+        self.denom.set_zero();
+    }
+
+    /// Sets the fraction to infinity by setting the numerator to one and
+    /// the denominator to zero.
+    #[inline]
+    pub fn set_infinite(&mut self) {
+        self.numer.set_one();
+        self.denom.set_zero();
+    }
 }
 
 impl<T: Clone + Integer> Fraction<T> {
@@ -813,7 +829,7 @@ impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
 
 impl<T> MulAssign for Fraction<T>
 where
-    T: Integer + Copy + NumAssign,
+    T: Integer + Copy + NumAssign + Signed + Neg<Output = T> + Zero + One,
 {
     /// The function performs a multiplication assignment operation on two objects of the same type.
     ///
@@ -821,6 +837,28 @@ where
     ///
     /// * `other`: `other` is a reference to another instance of the same type as `self`.
     fn mul_assign(&mut self, other: Self) {
+        if self.is_nan() || other.is_nan() {
+            self.set_nan();
+            return;
+        }
+        if (self.is_infinite() && other.is_zero()) || (self.is_zero() && other.is_infinite()) {
+            self.set_nan();
+            return;
+        }
+        if self.is_zero() || other.is_zero() {
+            self.set_zero();
+            return;
+        }
+        if self.is_infinite() || other.is_infinite() {
+            if self.is_negative() ^ other.is_negative() {
+                self.numer = -T::one();
+            } else {
+                self.numer = T::one();
+            }
+            self.denom = T::zero();
+            return;
+        }
+
         let mut rhs = other;
         mem::swap(&mut self.numer, &mut rhs.numer);
         self.reduce();
@@ -845,7 +883,7 @@ where
 
 impl<T> DivAssign for Fraction<T>
 where
-    T: Integer + Copy + NumAssign + Neg<Output = T>,
+    T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
 {
     /// The function performs division assignment on a mutable reference to a struct, swapping and
     /// multiplying its numerator and denominator with another struct.
@@ -854,6 +892,35 @@ where
     ///
     /// * `other`: `other` is a reference to another instance of the same type as `self`.
     fn div_assign(&mut self, other: Self) {
+        if self.is_nan() || other.is_nan() {
+            self.set_nan();
+            return;
+        }
+        if self.is_infinite() && other.is_infinite() {
+            self.set_nan();
+            return;
+        }
+        if self.is_zero() && other.is_zero() {
+            self.set_nan();
+            return;
+        }
+        if other.is_zero() {
+            if self.is_negative() {
+                self.numer = -T::one();
+            } else {
+                self.numer = T::one();
+            }
+            self.denom = T::zero();
+            return;
+        }
+        if self.is_infinite() {
+            return;
+        }
+        if other.is_infinite() {
+            self.set_zero();
+            return;
+        }
+
         let mut rhs = other;
         mem::swap(&mut self.denom, &mut rhs.numer);
         self.normalize();
@@ -878,7 +945,7 @@ where
 
 impl<T> SubAssign for Fraction<T>
 where
-    T: Integer + Copy + NumAssign,
+    T: Integer + Copy + NumAssign + Neg<Output = T>,
 {
     /// The function `sub_assign` subtracts another value from the current value and normalizes the
     /// result.
@@ -888,6 +955,22 @@ where
     /// * `other`: The `other` parameter is of the same type as `self` and represents another instance
     ///            of the same struct or class.
     fn sub_assign(&mut self, other: Self) {
+        if self.is_nan() || other.is_nan() {
+            self.set_nan();
+            return;
+        }
+        if self.is_infinite() && other.is_infinite() {
+            self.set_nan();
+            return;
+        }
+        if self.is_infinite() {
+            return;
+        }
+        if other.is_infinite() {
+            *self = -other;
+            return;
+        }
+
         if self.denom == other.denom {
             self.numer -= other.numer;
             self.reduce();
@@ -934,6 +1017,18 @@ where
     /// * `other`: The `other` parameter is of type `Self`, which means it is the same type as the
     ///            struct or object that the `add_assign` method belongs to.
     fn add_assign(&mut self, other: Self) {
+        if self.is_nan() || other.is_nan() {
+            self.set_nan();
+            return;
+        }
+        if self.is_infinite() {
+            return;
+        }
+        if other.is_infinite() {
+            *self = other;
+            return;
+        }
+
         if self.denom == other.denom {
             self.numer += other.numer;
             self.reduce();
@@ -1133,10 +1228,34 @@ macro_rules! forward_op_assign {
     };
 }
 
+macro_rules! forward_op_assign_signed {
+    (impl $imp:ident, $method:ident) => {
+        impl<'a, T> $imp<&'a Fraction<T>> for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
+        {
+            #[inline]
+            fn $method(&mut self, other: &Self) {
+                self.$method(other.clone())
+            }
+        }
+
+        impl<'a, T> $imp<&'a T> for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
+        {
+            #[inline]
+            fn $method(&mut self, other: &T) {
+                self.$method(other.clone())
+            }
+        }
+    };
+}
+
 forward_op_assign!(impl AddAssign, add_assign);
 forward_op_assign!(impl SubAssign, sub_assign);
-forward_op_assign!(impl MulAssign, mul_assign);
-forward_op_assign!(impl DivAssign, div_assign);
+forward_op_assign_signed!(impl MulAssign, mul_assign);
+forward_op_assign_signed!(impl DivAssign, div_assign);
 
 macro_rules! forward_op {
     (impl $imp:ident, $method:ident, $op_assign:ident) => {
@@ -1170,10 +1289,42 @@ macro_rules! forward_op {
     };
 }
 
+macro_rules! forward_op_signed {
+    (impl $imp:ident, $method:ident, $op_assign:ident) => {
+        impl<T> $imp for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
+        {
+            type Output = Self;
+
+            #[inline]
+            fn $method(self, other: Self) -> Self::Output {
+                let mut res = self;
+                res.$op_assign(other);
+                res
+            }
+        }
+
+        impl<T> $imp<T> for Fraction<T>
+        where
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
+        {
+            type Output = Self;
+
+            #[inline]
+            fn $method(self, other: T) -> Self::Output {
+                let mut res = self;
+                res.$op_assign(other);
+                res
+            }
+        }
+    };
+}
+
 forward_op!(impl Add, add, add_assign);
 forward_op!(impl Sub, sub, sub_assign);
-forward_op!(impl Mul, mul, mul_assign);
-forward_op!(impl Div, div, div_assign);
+forward_op_signed!(impl Mul, mul, mul_assign);
+forward_op_signed!(impl Div, div, div_assign);
 
 #[cfg(test)]
 mod tests {
