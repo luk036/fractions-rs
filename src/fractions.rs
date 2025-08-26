@@ -1007,7 +1007,7 @@ where
 
 impl<T> AddAssign for Fraction<T>
 where
-    T: Integer + Copy + NumAssign + Zero + One,
+    T: Integer + Copy + NumAssign + Zero + One + Signed,
 {
     /// The function `add_assign` adds two fractions together and assigns the result to the first
     /// fraction.
@@ -1019,6 +1019,12 @@ where
     fn add_assign(&mut self, other: Self) {
         if self.is_nan() || other.is_nan() {
             self.set_nan();
+            return;
+        }
+        if self.is_infinite() && other.is_infinite() {
+            if self.is_negative() ^ other.is_negative() {
+                self.set_nan();
+            }
             return;
         }
         if self.is_infinite() {
@@ -1252,7 +1258,7 @@ macro_rules! forward_op_assign_signed {
     };
 }
 
-forward_op_assign!(impl AddAssign, add_assign);
+forward_op_assign_signed!(impl AddAssign, add_assign);
 forward_op_assign!(impl SubAssign, sub_assign);
 forward_op_assign_signed!(impl MulAssign, mul_assign);
 forward_op_assign_signed!(impl DivAssign, div_assign);
@@ -1321,7 +1327,7 @@ macro_rules! forward_op_signed {
     };
 }
 
-forward_op!(impl Add, add, add_assign);
+forward_op_signed!(impl Add, add, add_assign);
 forward_op!(impl Sub, sub, sub_assign);
 forward_op_signed!(impl Mul, mul, mul_assign);
 forward_op_signed!(impl Div, div, div_assign);
