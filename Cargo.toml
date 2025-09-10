@@ -85,3 +85,9 @@ std = [
 [dev-dependencies]
 quickcheck = "1"
 quickcheck_macros = "1"
+
+[profile.release]
+opt-level = 'z'     # Optimize for size. 's' is also an option.
+lto = true          # Link Time Optimization
+codegen-units = 1   # Reduce number of codegen units to increase optimization opportunities
+strip = "debuginfo" # Strip debug info from the binary
