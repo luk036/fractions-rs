@@ -1211,10 +1211,10 @@ where
 // }
 
 macro_rules! forward_op_assign {
-    (impl $imp:ident, $method:ident) => {
+    (impl $imp:ident, $method:ident, $($tr:ident),*) => {
         impl<'a, T> $imp<&'a Fraction<T>> for Fraction<T>
         where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One $(+ $tr)*,
         {
             #[inline]
             fn $method(&mut self, other: &Self) {
@@ -1224,7 +1224,7 @@ macro_rules! forward_op_assign {
 
         impl<'a, T> $imp<&'a T> for Fraction<T>
         where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One $(+ $tr)*,
         {
             #[inline]
             fn $method(&mut self, other: &T) {
@@ -1234,40 +1234,16 @@ macro_rules! forward_op_assign {
     };
 }
 
-macro_rules! forward_op_assign_signed {
-    (impl $imp:ident, $method:ident) => {
-        impl<'a, T> $imp<&'a Fraction<T>> for Fraction<T>
-        where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
-        {
-            #[inline]
-            fn $method(&mut self, other: &Self) {
-                self.$method(other.clone())
-            }
-        }
-
-        impl<'a, T> $imp<&'a T> for Fraction<T>
-        where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
-        {
-            #[inline]
-            fn $method(&mut self, other: &T) {
-                self.$method(other.clone())
-            }
-        }
-    };
-}
-
-forward_op_assign_signed!(impl AddAssign, add_assign);
-forward_op_assign!(impl SubAssign, sub_assign);
-forward_op_assign_signed!(impl MulAssign, mul_assign);
-forward_op_assign_signed!(impl DivAssign, div_assign);
+forward_op_assign!(impl AddAssign, add_assign, Signed);
+forward_op_assign!(impl SubAssign, sub_assign,);
+forward_op_assign!(impl MulAssign, mul_assign, Signed);
+forward_op_assign!(impl DivAssign, div_assign, Signed);
 
 macro_rules! forward_op {
-    (impl $imp:ident, $method:ident, $op_assign:ident) => {
+    (impl $imp:ident, $method:ident, $op_assign:ident, $($tr:ident),*) => {
         impl<T> $imp for Fraction<T>
         where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One $(+ $tr)*,
         {
             type Output = Self;
 
@@ -1281,7 +1257,7 @@ macro_rules! forward_op {
 
         impl<T> $imp<T> for Fraction<T>
         where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One,
+            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One $(+ $tr)*,
         {
             type Output = Self;
 
@@ -1295,42 +1271,10 @@ macro_rules! forward_op {
     };
 }
 
-macro_rules! forward_op_signed {
-    (impl $imp:ident, $method:ident, $op_assign:ident) => {
-        impl<T> $imp for Fraction<T>
-        where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
-        {
-            type Output = Self;
-
-            #[inline]
-            fn $method(self, other: Self) -> Self::Output {
-                let mut res = self;
-                res.$op_assign(other);
-                res
-            }
-        }
-
-        impl<T> $imp<T> for Fraction<T>
-        where
-            T: Integer + Copy + NumAssign + Neg<Output = T> + Zero + One + Signed,
-        {
-            type Output = Self;
-
-            #[inline]
-            fn $method(self, other: T) -> Self::Output {
-                let mut res = self;
-                res.$op_assign(other);
-                res
-            }
-        }
-    };
-}
-
-forward_op_signed!(impl Add, add, add_assign);
-forward_op!(impl Sub, sub, sub_assign);
-forward_op_signed!(impl Mul, mul, mul_assign);
-forward_op_signed!(impl Div, div, div_assign);
+forward_op!(impl Add, add, add_assign, Signed);
+forward_op!(impl Sub, sub, sub_assign,);
+forward_op!(impl Mul, mul, mul_assign, Signed);
+forward_op!(impl Div, div, div_assign, Signed);
 
 #[cfg(test)]
 mod tests {
