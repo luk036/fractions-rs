@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "fractions-rs"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Wai-Shing Luk"]
 exclude = [
     "/bors.toml",
