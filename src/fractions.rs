@@ -58,9 +58,9 @@ pub fn const_abs<T: Integer + Neg<Output = T>>(a: T) -> T {
 /// Arguments:
 ///
 /// * `m`: An integer representing the first number for which we want to find the greatest common
-///        divisor (GCD).
+///   divisor (GCD).
 /// * `n`: The parameter `n` represents the second number in the pair for which we want to find the
-///        greatest common divisor (GCD).
+///   greatest common divisor (GCD).
 ///
 /// Returns:
 ///
@@ -81,9 +81,9 @@ fn gcd_recur<T: Integer + Neg<Output = T> + Copy>(m: T, n: T) -> T {
 /// Arguments:
 ///
 /// * `m`: The parameter `m` represents the first integer for which we want to find the greatest common
-///        divisor (GCD).
+///   divisor (GCD).
 /// * `n`: The parameter `n` represents the first number for which we want to find the greatest common
-///        divisor (GCD).
+///   divisor (GCD).
 ///
 /// Returns:
 ///
@@ -118,11 +118,11 @@ fn test_gcd_recur() {
 /// Properties:
 ///
 /// * `numer`: The `numer` property represents the numerator portion of the `Fraction` object. It is of type
-///            `T`, which is a generic type parameter that must implement the `Integer` trait. The numerator is the
-///            top part of a fraction, representing the number of equal parts being considered.
+///   `T`, which is a generic type parameter that must implement the `Integer` trait. The numerator is the
+///   top part of a fraction, representing the number of equal parts being considered.
 /// * `denom`: The `denom` property represents the denominator portion of the `Fraction` object. The
-///            denominator is the number below the line in a fraction and represents the total number of equal
-///            parts into which the whole is divided.
+///   denominator is the number below the line in a fraction and represents the total number of equal
+///   parts into which the whole is divided.
 #[derive(PartialEq, Eq, Copy, Clone, Hash, Debug)]
 #[allow(missing_docs)]
 pub struct Fraction<T> {
@@ -259,10 +259,10 @@ where
     /// Arguments:
     ///
     /// * `numer`: The `numer` parameter represents the numerator of the fraction. It is the number above
-    ///            the fraction line.
+    ///   the fraction line.
     /// * `denom`: The parameter `denom` represents the denominator of the fraction. It is the number below
-    ///            the line in a fraction and represents the total number of equal parts into which the whole is
-    ///            divided.
+    ///   the line in a fraction and represents the total number of equal parts into which the whole is
+    ///   divided.
     ///
     /// Returns:
     ///
@@ -706,8 +706,8 @@ impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd<T> for Fraction<T> {
     /// Arguments:
     ///
     /// * `other`: The `other` parameter is a reference to a value of type `T`. It is used to compare
-    ///            with the current `Fraction` instance (`self`) to determine the ordering relationship between
-    ///            them.
+    ///   with the current `Fraction` instance (`self`) to determine the ordering relationship between
+    ///   them.
     ///
     /// Returns:
     ///
@@ -745,7 +745,7 @@ macro_rules! scalar_ord_eq {
                 /// Arguments:
                 ///
                 /// * `other`: A reference to another Fraction object with a scalar type specified by
-                ///            the generic parameter .
+                ///   the generic parameter .
                 ///
                 /// Returns:
                 ///
@@ -762,7 +762,7 @@ macro_rules! scalar_ord_eq {
                 /// Arguments:
                 ///
                 /// * `other`: `other` is a reference to a `Fraction` object with a generic type
-                ///            parameter ``.
+                ///   parameter ``.
                 ///
                 /// Returns:
                 ///
@@ -953,7 +953,7 @@ where
     /// Arguments:
     ///
     /// * `other`: The `other` parameter is of the same type as `self` and represents another instance
-    ///            of the same struct or class.
+    ///   of the same struct or class.
     fn sub_assign(&mut self, other: Self) {
         if self.is_nan() || other.is_nan() {
             self.set_nan();
@@ -1015,7 +1015,7 @@ where
     /// Arguments:
     ///
     /// * `other`: The `other` parameter is of type `Self`, which means it is the same type as the
-    ///            struct or object that the `add_assign` method belongs to.
+    ///   struct or object that the `add_assign` method belongs to.
     fn add_assign(&mut self, other: Self) {
         if self.is_nan() || other.is_nan() {
             self.set_nan();
@@ -1140,7 +1140,7 @@ where
     /// Arguments:
     ///
     /// * `other`: `other` is a generic parameter `T` which represents the value being subtracted from
-    ///            `self.numer`.
+    ///   `self.numer`.
     fn sub_assign(&mut self, other: T) {
         if self.denom == One::one() {
             self.numer -= other;
