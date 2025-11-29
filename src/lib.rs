@@ -30,6 +30,17 @@ use core::ops::{Add, Mul, Sub};
 /// The function `archimedes` returns the area of a triangle computed using Archimedes' formula, given
 /// the lengths of the 3 sides.
 ///
+/// # Examples
+///
+/// ```
+/// use fractions::{Fraction, archimedes};
+///
+/// let q_1 = Fraction::<i32>::new(1, 2);
+/// let q_2 = Fraction::<i32>::new(1, 4);
+/// let q_3 = Fraction::<i32>::new(1, 6);
+/// let result = archimedes(&q_1, &q_2, &q_3);
+/// assert_eq!(result, Fraction::<i32>::new(23, 144));
+/// ```
 #[inline]
 pub fn archimedes<T>(q_1: &T, q_2: &T, q_3: &T) -> T
 where

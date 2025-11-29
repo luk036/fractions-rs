@@ -37,10 +37,11 @@ use core::hash::{Hash, Hasher};
 ///
 /// The function `const_abs` returns the absolute value of the input `a`.
 ///
-/// Examples:
+/// # Examples
 ///
-/// ```rust
+/// ```
 /// use fractions::const_abs;
+///
 /// assert_eq!(const_abs(-10), 10);
 /// assert_eq!(const_abs(10), 10);
 /// ```
@@ -90,10 +91,11 @@ fn gcd_recur<T: Integer + Neg<Output = T> + Copy>(m: T, n: T) -> T {
 /// The function `const_gcd` returns an `i32` value, which represents the greatest common divisor of the
 /// two input integers `m` and `n`.
 ///
-/// Examples:
+/// # Examples
 ///
-/// ```rust
+/// ```
 /// use fractions::const_gcd;
+///
 /// assert_eq!(const_gcd(30, -40), 10);
 /// assert_eq!(const_gcd(30, 40), 10);
 /// ```
@@ -113,16 +115,17 @@ fn test_gcd_recur() {
     assert_eq!(gcd_recur(30, 40), 10);
 }
 
-/// The above code defines a generic Fraction struct in Rust with numerator and denominator fields.
+/// A generic fraction struct that represents a rational number as a numerator and denominator.
 ///
-/// Properties:
+/// # Examples
 ///
-/// * `numer`: The `numer` property represents the numerator portion of the `Fraction` object. It is of type
-///   `T`, which is a generic type parameter that must implement the `Integer` trait. The numerator is the
-///   top part of a fraction, representing the number of equal parts being considered.
-/// * `denom`: The `denom` property represents the denominator portion of the `Fraction` object. The
-///   denominator is the number below the line in a fraction and represents the total number of equal
-///   parts into which the whole is divided.
+/// ```
+/// use fractions::Fraction;
+///
+/// let f = Fraction::new(1, 2); // represents 1/2
+/// assert_eq!(f.numer(), &1);
+/// assert_eq!(f.denom(), &2);
+/// ```
 #[derive(PartialEq, Eq, Copy, Clone, Hash, Debug)]
 #[allow(missing_docs)]
 pub struct Fraction<T> {
@@ -139,10 +142,11 @@ impl<T> Fraction<T> {
     /// **There are several methods that will panic if used on a `Fraction` with
     /// `denom == 0`.**
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
+    ///
     /// let f = Fraction::new_raw(10, 2); // 5/1
     /// assert_eq!(f.numer(), &10);
     /// assert_eq!(f.denom(), &2);
@@ -169,6 +173,17 @@ impl<T> Fraction<T> {
 impl<T: Clone + Integer> Fraction<T> {
     /// Creates a `Fraction` with a numerator of 0 and a denominator of 1.
     /// This represents the number zero as a fraction.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let f: Fraction<i32> = Fraction::zero();
+    /// assert!(f.is_zero());
+    /// assert_eq!(f.numer(), &0);
+    /// assert_eq!(f.denom(), &1);
+    /// ```
     #[inline]
     pub fn zero() -> Fraction<T> {
         Fraction::new_raw(Zero::zero(), One::one())
@@ -177,6 +192,21 @@ impl<T: Clone + Integer> Fraction<T> {
     /// Checks if the fraction is equal to zero.
     ///
     /// Returns `true` if the numerator is zero and the denominator is non-zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let f: Fraction<i32> = Fraction::zero();
+    /// assert!(f.is_zero());
+    ///
+    /// let f = Fraction::new(0, 5);
+    /// assert!(f.is_zero());
+    ///
+    /// let f = Fraction::new(1, 5);
+    /// assert!(!f.is_zero());
+    /// ```
     #[inline]
     pub fn is_zero(&self) -> bool {
         self.numer.is_zero() && !self.denom.is_zero()
@@ -184,24 +214,41 @@ impl<T: Clone + Integer> Fraction<T> {
 
     /// Sets the fraction to zero by setting the numerator to zero and
     /// the denominator to one.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(5, 7);
+    /// f.set_zero();
+    /// assert!(f.is_zero());
+    /// assert_eq!(f, Fraction::zero());
+    /// ```
     #[inline]
     pub fn set_zero(&mut self) {
         self.numer.set_zero();
         self.denom.set_one();
     }
 
-    /// Checks if the fraction is in normal form, meaning the numerator and
-    /// denominator are not zero.
-    ///
-    /// Returns `true` if neither the numerator nor denominator are zero.
-    #[inline]
-    pub fn is_normal(&self) -> bool {
-        !(self.numer.is_zero() || self.denom.is_zero())
-    }
-
     /// Checks if the fraction represents infinity.
     ///
     /// Returns `true` if the numerator is non-zero and the denominator is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let f = Fraction::new_raw(1, 0);  // represents infinity
+    /// assert!(f.is_infinite());
+    ///
+    /// let f = Fraction::new_raw(-1, 0); // represents negative infinity
+    /// assert!(f.is_infinite());
+    ///
+    /// let f = Fraction::new(1, 2);
+    /// assert!(!f.is_infinite());
+    /// ```
     #[inline]
     pub fn is_infinite(&self) -> bool {
         !self.numer.is_zero() && self.denom.is_zero()
@@ -210,6 +257,18 @@ impl<T: Clone + Integer> Fraction<T> {
     /// Checks if the fraction represents NaN (not a number).
     ///
     /// Returns `true` if both the numerator and denominator are zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let f = Fraction::new_raw(0, 0);  // represents NaN
+    /// assert!(f.is_nan());
+    ///
+    /// let f = Fraction::new(1, 2);
+    /// assert!(!f.is_nan());
+    /// ```
     #[inline]
     pub fn is_nan(&self) -> bool {
         self.numer.is_zero() && self.denom.is_zero()
@@ -217,6 +276,16 @@ impl<T: Clone + Integer> Fraction<T> {
 
     /// Sets the fraction to NaN (not a number) by setting both the
     /// numerator and denominator to zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(5, 7);
+    /// f.set_nan();
+    /// assert!(f.is_nan());
+    /// ```
     #[inline]
     pub fn set_nan(&mut self) {
         self.numer.set_zero();
@@ -225,6 +294,16 @@ impl<T: Clone + Integer> Fraction<T> {
 
     /// Sets the fraction to infinity by setting the numerator to one and
     /// the denominator to zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(5, 7);
+    /// f.set_infinite();
+    /// assert!(f.is_infinite());
+    /// ```
     #[inline]
     pub fn set_infinite(&mut self) {
         self.numer.set_one();
@@ -233,16 +312,58 @@ impl<T: Clone + Integer> Fraction<T> {
 }
 
 impl<T: Clone + Integer> Fraction<T> {
+    /// Creates a `Fraction` with a numerator of 1 and a denominator of 1.
+    /// This represents the number one as a fraction.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let f: Fraction<i32> = Fraction::one();
+    /// assert!(f.is_one());
+    /// assert_eq!(f, Fraction::new(1, 1));
+    /// ```
     #[inline]
     pub fn one() -> Fraction<T> {
         Fraction::new_raw(One::one(), One::one())
     }
 
+    /// Checks if the fraction is equal to one.
+    ///
+    /// Returns `true` if the numerator equals the denominator and both are non-zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let f: Fraction<i32> = Fraction::one();
+    /// assert!(f.is_one());
+    ///
+    /// let f = Fraction::new(2, 2);
+    /// assert!(f.is_one());
+    ///
+    /// let f = Fraction::new(1, 2);
+    /// assert!(!f.is_one());
+    /// ```
     #[inline]
     pub fn is_one(&self) -> bool {
         self.numer == self.denom
     }
 
+    /// Sets the fraction to one by setting both the numerator and denominator to one.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f: Fraction<i32> = Fraction::new(5, 7);
+    /// f.set_one();
+    /// assert!(f.is_one());
+    /// assert_eq!(f, Fraction::one());
+    /// ```
     #[inline]
     pub fn set_one(&mut self) {
         self.numer.set_one();
@@ -268,10 +389,11 @@ where
     ///
     /// The `new` function returns a new instance of the `Fraction` struct.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
+    ///
     /// let f = Fraction::new(30, -40);
     /// assert_eq!(f, Fraction::new(-3, 4));
     /// ```
@@ -289,13 +411,15 @@ where
     ///
     /// The `normalize` function returns a value of type `T`.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
-    /// let mut f = Fraction { numer: 30, denom: -40 };
-    /// assert_eq!(f.normalize(), 10);
+    ///
+    /// let mut f = Fraction::new_raw(30, -40);
+    /// let gcd = f.normalize();
     /// assert_eq!(f, Fraction::new(-3, 4));
+    /// assert_eq!(gcd, 10);
     /// ```
     #[inline]
     pub fn normalize(&mut self) -> T {
@@ -317,12 +441,15 @@ where
 {
     /// The `abs` function in Rust returns the absolute of a `Fraction` object.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
-    /// let mut f = Fraction::new(-3, 4);
     ///
+    /// let f = Fraction::new(-3, 4);
+    /// assert_eq!(f.abs(), Fraction::new(3, 4));
+    ///
+    /// let f = Fraction::new(3, -4);
     /// assert_eq!(f.abs(), Fraction::new(3, 4));
     /// ```
     #[inline]
@@ -429,6 +556,18 @@ impl<T: Integer + Zero + One + DivAssign + Copy> Fraction<T> {
     /// Returns:
     ///
     /// The function `reduce` returns a value of type `T`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new_raw(6, 8);
+    /// let gcd = f.reduce();
+    ///
+    /// assert_eq!(f, Fraction::new(3, 4));
+    /// assert_eq!(gcd, 2);
+    /// ```
     #[inline]
     pub fn reduce(&mut self) -> T {
         let common = gcd(self.numer, self.denom);
@@ -443,6 +582,17 @@ impl<T: Integer + Zero + One + DivAssign + Copy> Fraction<T> {
 impl<T: Integer + Zero + Neg<Output = T> + Ord + Copy> Fraction<T> {
     /// The `keep_denom_positive` function in Rust normalizes a fraction to a canonical form by ensuring that the
     /// denominator is always non-negative.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new_raw(3, -4);
+    /// f.keep_denom_positive();
+    ///
+    /// assert_eq!(f, Fraction::new(-3, 4)); // numerator becomes -3, denominator becomes positive
+    /// ```
     #[inline]
     pub fn keep_denom_positive(&mut self) {
         if self.denom < Zero::zero() {
@@ -453,14 +603,15 @@ impl<T: Integer + Zero + Neg<Output = T> + Ord + Copy> Fraction<T> {
 
     /// The `reciprocal` function swaps the numerator and denominator of a fraction and normalizes it.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
-    /// let mut f = Fraction::new(30, -40);
+    ///
+    /// let mut f = Fraction::new(3, 4);
     /// f.reciprocal();
     ///
-    /// assert_eq!(f, Fraction::new(-4, 3));
+    /// assert_eq!(f, Fraction::new(4, 3));
     /// ```
     #[inline]
     pub fn reciprocal(&mut self) {
@@ -480,11 +631,12 @@ impl<T: Integer + One> From<T> for Fraction<T> {
     ///
     /// The `from` function returns a `Fraction` struct.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
-    /// let mut f = Fraction::<i32>::from(3);
+    ///
+    /// let f = Fraction::<i32>::from(3);
     /// assert_eq!(f, Fraction::<i32>::new(3, 1));
     /// ```
     #[inline]
@@ -507,11 +659,12 @@ impl From<i32> for Fraction<i64> {
     ///
     /// The `from` function returns a `Fraction` struct.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
-    /// let mut f = Fraction::<i64>::from(3);
+    ///
+    /// let f = Fraction::<i64>::from(3i32);
     /// assert_eq!(f, Fraction::<i64>::new(3, 1));
     /// ```
     #[inline]
@@ -531,11 +684,12 @@ impl<T: Integer + One + Zero> Default for Fraction<T> {
     /// The `default()` function is returning a `Fraction` object with the numerator set to zero and the
     /// denominator set to one.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
-    /// let mut f = Fraction::<i32>::default();
+    ///
+    /// let f = Fraction::<i32>::default();
     /// assert_eq!(f, Fraction::zero());
     /// ```
     #[inline]
@@ -568,9 +722,11 @@ impl<T: Integer + Copy> Fraction<T> {
     ///
     /// The cross product of two values of type T.
     ///
-    /// Example:
-    /// ```rust
+    /// # Examples
+    ///
+    /// ```
     /// use fractions::Fraction;
+    ///
     /// let f1 = Fraction::new(3, 4);
     /// let f2 = Fraction::new(-5, 6);
     /// let res = f1.cross(&f2);
@@ -611,12 +767,14 @@ where
 
     /// The `neg` function in Rust returns the negation of a `Fraction` object.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
-    /// let mut f = Fraction::new(3, 4);
+    /// use core::ops::Neg;
     ///
+    /// let f = Fraction::new(3, 4);
+    /// assert_eq!(f.neg(), Fraction::new(-3, 4));
     /// assert_eq!(-f, Fraction::new(-3, 4));
     /// ```
     #[inline]
@@ -634,12 +792,13 @@ where
     /// Negates the given immutable fraction reference by cloning and negating
     /// the clone.
     ///
-    /// Example:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
+    ///
     /// let f = Fraction::new(3, 4);
-    /// let g = -f;
+    /// let g = -&f;
     /// assert_eq!(g, Fraction::new(-3, 4));
     /// ```
     #[inline]
@@ -659,11 +818,12 @@ where
     /// It clones the fraction, calls `reciprocal` on the clone to invert it,
     /// and returns the inverted fraction, leaving the original unchanged.
     ///
-    /// Example:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use num_traits::ops::inv::Inv;
     /// use fractions::Fraction;
+    ///
     /// let f = Fraction::new(-3, 4);
     /// let inv_f = f.inv();
     /// assert_eq!(inv_f, Fraction::new(-4, 3));
@@ -682,10 +842,11 @@ impl<T: Integer + PartialEq + Copy + DivAssign> PartialEq<T> for Fraction<T> {
     /// value. The examples demonstrate creating `Fraction` objects and using the `==` and `!=`
     /// operators to compare them with the given value.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
+    ///
     /// let f = Fraction::from(3);
     /// let g = Fraction::new(3, 4);
     ///
@@ -713,10 +874,11 @@ impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd<T> for Fraction<T> {
     ///
     /// The `partial_cmp` function returns an `Option<Ordering>`.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
+    ///
     /// let f = Fraction::new(3, 4);
     ///
     /// assert!(f < 1);
@@ -750,6 +912,16 @@ macro_rules! scalar_ord_eq {
                 /// Returns:
                 ///
                 /// A boolean value is being returned.
+                ///
+                /// # Examples
+                ///
+                /// ```
+                /// use fractions::Fraction;
+                ///
+                /// let f = Fraction::new(2, 1);
+                /// assert!(2 == f);
+                /// assert!(f == 2);
+                /// ```
                 #[inline]
                 fn eq(&self, other: &Fraction<$scalar>) -> bool {
                     other.denom == 1 as $scalar && other.numer == *self
@@ -767,6 +939,16 @@ macro_rules! scalar_ord_eq {
                 /// Returns:
                 ///
                 /// an `Option<Ordering>`.
+                ///
+                /// # Examples
+                ///
+                /// ```
+                /// use fractions::Fraction;
+                ///
+                /// let f = Fraction::new(3, 2);
+                /// assert!(2 > f);
+                /// assert!(f < 2);
+                /// ```
                 fn partial_cmp(&self, other: &Fraction<$scalar>) -> Option<Ordering> {
                     if other.denom == 1 as $scalar || *self == 0 as $scalar {
                         return self.partial_cmp(&other.numer);
@@ -797,10 +979,11 @@ impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
     /// type `Fraction`. It provides an example usage of comparing two `Fraction` instances using the
     /// `>` operator.
     ///
-    /// Examples:
+    /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use fractions::Fraction;
+    ///
     /// let f = Fraction::new(3, 4);
     /// let g = Fraction::new(5, 7);
     ///
@@ -836,6 +1019,17 @@ where
     /// Arguments:
     ///
     /// * `other`: `other` is a reference to another instance of the same type as `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(1, 2);
+    /// f *= Fraction::new(2, 3);
+    ///
+    /// assert_eq!(f, Fraction::new(1, 3));
+    /// ```
     fn mul_assign(&mut self, other: Self) {
         if self.is_nan() || other.is_nan() {
             self.set_nan();
@@ -891,6 +1085,17 @@ where
     /// Arguments:
     ///
     /// * `other`: `other` is a reference to another instance of the same type as `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(1, 2);
+    /// f /= Fraction::new(2, 3);
+    ///
+    /// assert_eq!(f, Fraction::new(3, 4));
+    /// ```
     fn div_assign(&mut self, other: Self) {
         if self.is_nan() || other.is_nan() {
             self.set_nan();
@@ -954,6 +1159,17 @@ where
     ///
     /// * `other`: The `other` parameter is of the same type as `self` and represents another instance
     ///   of the same struct or class.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(3, 4);
+    /// f -= Fraction::new(1, 4);
+    ///
+    /// assert_eq!(f, Fraction::new(1, 2));
+    /// ```
     fn sub_assign(&mut self, other: Self) {
         if self.is_nan() || other.is_nan() {
             self.set_nan();
@@ -1016,6 +1232,17 @@ where
     ///
     /// * `other`: The `other` parameter is of type `Self`, which means it is the same type as the
     ///   struct or object that the `add_assign` method belongs to.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(1, 4);
+    /// f += Fraction::new(1, 4);
+    ///
+    /// assert_eq!(f, Fraction::new(1, 2));
+    /// ```
     fn add_assign(&mut self, other: Self) {
         if self.is_nan() || other.is_nan() {
             self.set_nan();
@@ -1078,6 +1305,17 @@ where
     /// Arguments:
     ///
     /// * `other`: `other` is a generic parameter of type `T`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(1, 2);
+    /// f *= 2;
+    ///
+    /// assert_eq!(f, Fraction::new(1, 1));
+    /// ```
     fn mul_assign(&mut self, other: T) {
         let mut rhs = other;
         mem::swap(&mut self.numer, &mut rhs);
@@ -1109,6 +1347,17 @@ where
     /// Arguments:
     ///
     /// * `other`: `other` is a generic parameter of type `T`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(1, 2);
+    /// f /= 2;
+    ///
+    /// assert_eq!(f, Fraction::new(1, 4));
+    /// ```
     #[allow(clippy::suspicious_op_assign_impl)]
     fn div_assign(&mut self, other: T) {
         let mut rhs = other;
@@ -1141,6 +1390,17 @@ where
     ///
     /// * `other`: `other` is a generic parameter `T` which represents the value being subtracted from
     ///   `self.numer`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(3, 4);
+    /// f -= 1;
+    ///
+    /// assert_eq!(f, Fraction::new(-1, 4));
+    /// ```
     fn sub_assign(&mut self, other: T) {
         if self.denom == One::one() {
             self.numer -= other;
@@ -1180,6 +1440,17 @@ where
     /// Arguments:
     ///
     /// * `other`: `other` is a generic parameter `T` which represents the value being added to `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let mut f = Fraction::new(1, 4);
+    /// f += 1;
+    ///
+    /// assert_eq!(f, Fraction::new(5, 4));
+    /// ```
     fn add_assign(&mut self, other: T) {
         if self.denom == One::one() {
             self.numer += other;
