@@ -67,8 +67,8 @@ impl<T> Fraction<T> {
     /// **There are several methods that will panic if used on a `Fraction` with
     /// `denom == 0`.**
     #[inline]
-    pub const fn new_raw(numer: T, denom: T) -> Fraction<T> {
-        Fraction { numer, denom }
+    pub const fn new_raw(num: T, den: T) -> Fraction<T> {
+        Fraction { numer: num, denom: den }
     }
 
     /// Gets an immutable reference to the numerator.
@@ -89,16 +89,16 @@ impl<T: Clone + Integer> Fraction<T> {
     ///
     /// **Panics if `denom` is zero.**
     #[inline]
-    pub fn new(numer: T, denom: T) -> Fraction<T> {
-        let mut ret = Fraction::new_raw(numer, denom);
+    pub fn new(num: T, den: T) -> Fraction<T> {
+        let mut ret = Fraction::new_raw(num, den);
         ret.reduce();
         ret
     }
 
     /// Creates a `Fraction` representing the integer `t`.
     #[inline]
-    pub fn from_integer(t: T) -> Fraction<T> {
-        Fraction::new_raw(t, One::one())
+    pub fn from_integer(val: T) -> Fraction<T> {
+        Fraction::new_raw(val, One::one())
     }
 
     /// Converts to an integer, rounding towards zero.
@@ -128,27 +128,27 @@ impl<T: Clone + Integer> Fraction<T> {
             self.set_one();
             return;
         }
-        let g: T = self.numer.gcd(&self.denom);
+        let gcd_val: T = self.numer.gcd(&self.denom);
 
         // FIXME(#5992): assignment operator overloads
         // T: Clone + Integer != T: Clone + NumAssign
 
         #[inline]
-        fn replace_with<T: Zero>(x: &mut T, f: impl FnOnce(T) -> T) {
-            let y = core::mem::replace(x, T::zero());
-            *x = f(y);
+        fn replace_with<T: Zero>(target: &mut T, func: impl FnOnce(T) -> T) {
+            let old_val = core::mem::replace(target, T::zero());
+            *target = func(old_val);
         }
 
-        // self.numer /= g;
-        replace_with(&mut self.numer, |x| x / g.clone());
+        // self.numer /= gcd_val;
+        replace_with(&mut self.numer, |val| val / gcd_val.clone());
 
-        // self.denom /= g;
-        replace_with(&mut self.denom, |x| x / g);
+        // self.denom /= gcd_val;
+        replace_with(&mut self.denom, |val| val / gcd_val);
 
         // keep denom positive!
         if self.denom < T::zero() {
-            replace_with(&mut self.numer, |x| T::zero() - x);
-            replace_with(&mut self.denom, |x| T::zero() - x);
+            replace_with(&mut self.numer, |val| T::zero() - val);
+            replace_with(&mut self.denom, |val| T::zero() - val);
         }
     }
 
@@ -302,8 +302,8 @@ impl<T> From<T> for Fraction<T>
 where
     T: Clone + Integer,
 {
-    fn from(x: T) -> Fraction<T> {
-        Fraction::from_integer(x)
+    fn from(val: T) -> Fraction<T> {
+        Fraction::from_integer(val)
     }
 }
 
@@ -822,18 +822,18 @@ where
         } else if numer == denom {
             Some(Self::one())
         } else {
-            let g = numer.gcd(&denom);
-            let numer = numer / g.clone();
-            let denom = denom / g;
-            let raw = if denom < T::zero() {
+            let gcd_val = numer.gcd(&denom);
+            let num = numer / gcd_val.clone();
+            let den = denom / gcd_val;
+            let raw_frac = if den < T::zero() {
                 // We need to keep denom positive, but 2's-complement MIN may
                 // overflow negation -- instead we can check multiplying -1.
-                let n1 = T::zero() - T::one();
-                Fraction::new_raw(numer.checked_mul(&n1)?, denom.checked_mul(&n1)?)
+                let neg_one = T::zero() - T::one();
+                Fraction::new_raw(num.checked_mul(&neg_one)?, den.checked_mul(&neg_one)?)
             } else {
-                Fraction::new_raw(numer, denom)
+                Fraction::new_raw(num, den)
             };
-            Some(raw)
+            Some(raw_frac)
         }
     }
 }
@@ -1089,15 +1089,15 @@ impl<T: FromStr + Clone + Integer> FromStr for Fraction<T> {
     fn from_str(s: &str) -> Result<Fraction<T>, ParseFractionError> {
         let mut split = s.splitn(2, '/');
 
-        let n = split.next().ok_or(ParseFractionError {
+        let num_str = split.next().ok_or(ParseFractionError {
             kind: FractionErrorKind::ParseError,
         })?;
-        let num = FromStr::from_str(n).map_err(|_| ParseFractionError {
+        let num = FromStr::from_str(num_str).map_err(|_| ParseFractionError {
             kind: FractionErrorKind::ParseError,
         })?;
 
-        let d = split.next().unwrap_or("1");
-        let den = FromStr::from_str(d).map_err(|_| ParseFractionError {
+        let den_str = split.next().unwrap_or("1");
+        let den = FromStr::from_str(den_str).map_err(|_| ParseFractionError {
             kind: FractionErrorKind::ParseError,
         })?;
 
@@ -1277,10 +1277,10 @@ where
     let negative = val.is_sign_negative();
     let abs_val = val.abs();
 
-    let r = approximate_float_unsigned(abs_val, max_error, max_iterations)?;
+    let result = approximate_float_unsigned(abs_val, max_error, max_iterations)?;
 
     // Make negative again if needed
-    Some(if negative { r.neg() } else { r })
+    Some(if negative { result.neg() } else { result })
 }
 
 // No Unsigned constraint because this also works on positive integers and is called
@@ -1297,83 +1297,83 @@ where
         return None;
     }
 
-    let mut q = val;
-    let mut n0 = T::zero();
-    let mut d0 = T::one();
-    let mut n1 = T::one();
-    let mut d1 = T::zero();
+    let mut quotient = val;
+    let mut num0 = T::zero();
+    let mut den0 = T::one();
+    let mut num1 = T::one();
+    let mut den1 = T::zero();
 
-    let t_max = T::max_value();
-    let t_max_f = <F as NumCast>::from(t_max.clone())?;
+    let type_max = T::max_value();
+    let type_max_f = <F as NumCast>::from(type_max.clone())?;
 
     // 1/epsilon > T::MAX
-    let epsilon = t_max_f.recip();
+    let epsilon = type_max_f.recip();
 
     // Overflow
-    if q > t_max_f {
+    if quotient > type_max_f {
         return None;
     }
 
     for _ in 0..max_iterations {
-        let a = match <T as NumCast>::from(q) {
+        let int_part = match <T as NumCast>::from(quotient) {
             None => break,
-            Some(a) => a,
+            Some(val) => val,
         };
 
-        let a_f = match <F as NumCast>::from(a.clone()) {
+        let int_part_f = match <F as NumCast>::from(int_part.clone()) {
             None => break,
-            Some(a_f) => a_f,
+            Some(val) => val,
         };
-        let f = q - a_f;
+        let frac_part = quotient - int_part_f;
 
         // Prevent overflow
-        if !a.is_zero()
-            && (n1 > t_max.clone() / a.clone()
-                || d1 > t_max.clone() / a.clone()
-                || a.clone() * n1.clone() > t_max.clone() - n0.clone()
-                || a.clone() * d1.clone() > t_max.clone() - d0.clone())
+        if !int_part.is_zero()
+            && (num1 > type_max.clone() / int_part.clone()
+                || den1 > type_max.clone() / int_part.clone()
+                || int_part.clone() * num1.clone() > type_max.clone() - num0.clone()
+                || int_part.clone() * den1.clone() > type_max.clone() - den0.clone())
         {
             break;
         }
 
-        let n = a.clone() * n1.clone() + n0.clone();
-        let d = a.clone() * d1.clone() + d0.clone();
+        let num = int_part.clone() * num1.clone() + num0.clone();
+        let den = int_part.clone() * den1.clone() + den0.clone();
 
-        n0 = n1;
-        d0 = d1;
-        n1 = n.clone();
-        d1 = d.clone();
+        num0 = num1;
+        den0 = den1;
+        num1 = num.clone();
+        den1 = den.clone();
 
         // Simplify fraction. Doing so here instead of at the end
         // allows us to get closer to the target value without overflows
-        let g = Integer::gcd(&n1, &d1);
-        if !g.is_zero() {
-            n1 = n1 / g.clone();
-            d1 = d1 / g.clone();
+        let gcd_val = Integer::gcd(&num1, &den1);
+        if !gcd_val.is_zero() {
+            num1 = num1 / gcd_val.clone();
+            den1 = den1 / gcd_val.clone();
         }
 
         // Close enough?
-        let (n_f, d_f) = match (<F as NumCast>::from(n), <F as NumCast>::from(d)) {
-            (Some(n_f), Some(d_f)) => (n_f, d_f),
+        let (num_f, den_f) = match (<F as NumCast>::from(num), <F as NumCast>::from(den)) {
+            (Some(val1), Some(val2)) => (val1, val2),
             _ => break,
         };
-        if (n_f / d_f - val).abs() < max_error {
+        if (num_f / den_f - val).abs() < max_error {
             break;
         }
 
         // Prevent division by ~0
-        if f < epsilon {
+        if frac_part < epsilon {
             break;
         }
-        q = f.recip();
+        quotient = frac_part.recip();
     }
 
     // Overflow
-    if d1.is_zero() {
+    if den1.is_zero() {
         return None;
     }
 
-    Some(Fraction::new(n1, d1))
+    Some(Fraction::new(num1, den1))
 }
 
 #[cfg(not(feature = "num-bigint"))]
@@ -1607,7 +1607,7 @@ fn ratio_to_f64<T: Bits + Clone + Integer + Signed + ShlAssign<usize> + ToPrimit
 
 /// Multiply `x` by 2 to the power of `exp`. Returns an accurate result even if `2^exp` is not
 /// representable.
-fn ldexp(x: f64, exp: i32) -> f64 {
+fn ldexp(val: f64, exponent: i32) -> f64 {
     use core::f64::{INFINITY, MANTISSA_DIGITS, MAX_EXP, RADIX};
 
     assert_eq!(
@@ -1619,38 +1619,38 @@ fn ldexp(x: f64, exp: i32) -> f64 {
     const MAX_UNSIGNED_EXPONENT: i32 = 0x7fe;
     const MIN_SUBNORMAL_POWER: i32 = MANTISSA_DIGITS as i32;
 
-    if x.is_zero() || x.is_infinite() || x.is_nan() {
-        return x;
+    if val.is_zero() || val.is_infinite() || val.is_nan() {
+        return val;
     }
 
     // Filter out obvious over / underflows to make sure the resulting exponent fits in an isize.
-    if exp > 3 * MAX_EXP {
-        return INFINITY * x.signum();
-    } else if exp < -3 * MAX_EXP {
-        return 0.0 * x.signum();
+    if exponent > 3 * MAX_EXP {
+        return INFINITY * val.signum();
+    } else if exponent < -3 * MAX_EXP {
+        return 0.0 * val.signum();
     }
 
-    // curr_exp is the x's *biased* exponent, and is in the [-54, MAX_UNSIGNED_EXPONENT] range.
-    let (bits, curr_exp) = if !x.is_normal() {
-        // If x is subnormal, we make it normal by multiplying by 2^53. This causes no loss of
+    // curr_exp is the val's *biased* exponent, and is in the [-54, MAX_UNSIGNED_EXPONENT] range.
+    let (bits, curr_exp) = if !val.is_normal() {
+        // If val is subnormal, we make it normal by multiplying by 2^53. This causes no loss of
         // precision or rounding.
-        let normal_x = x * 2f64.powi(MIN_SUBNORMAL_POWER);
-        let bits = normal_x.to_bits();
+        let normal_val = val * 2f64.powi(MIN_SUBNORMAL_POWER);
+        let bits = normal_val.to_bits();
         // This cast is safe because the exponent is at most 0x7fe, which fits in an i32.
         (
             bits,
             ((bits & EXPONENT_MASK) >> 52) as i32 - MIN_SUBNORMAL_POWER,
         )
     } else {
-        let bits = x.to_bits();
+        let bits = val.to_bits();
         let curr_exp = (bits & EXPONENT_MASK) >> 52;
         // This cast is safe because the exponent is at most 0x7fe, which fits in an i32.
         (bits, curr_exp as i32)
     };
 
-    // The addition can't overflow because exponent is between 0 and 0x7fe, and exp is between
+    // The addition can't overflow because exponent is between 0 and 0x7fe, and exponent is between
     // -2*MAX_EXP and 2*MAX_EXP.
-    let new_exp = curr_exp + exp;
+    let new_exp = curr_exp + exponent;
 
     if new_exp > MAX_UNSIGNED_EXPONENT {
         INFINITY * x.signum()
@@ -1669,17 +1669,17 @@ fn ldexp(x: f64, exp: i32) -> f64 {
         f64::from_bits(new_bits) * 2f64.powi(-MIN_SUBNORMAL_POWER)
     } else {
         // Result is zero.
-        return 0.0 * x.signum();
+        return 0.0 * val.signum();
     }
 }
 
 #[cfg(test)]
 #[cfg(feature = "std")]
-fn hash<T: Hash>(x: &T) -> u64 {
+fn hash<T: Hash>(item: &T) -> u64 {
     use std::collections::hash_map::RandomState;
     use std::hash::BuildHasher;
     let mut hasher = <RandomState as BuildHasher>::Hasher::new();
-    x.hash(&mut hasher);
+    item.hash(&mut hasher);
     hasher.finish()
 }
 
@@ -1773,17 +1773,17 @@ mod test {
     };
 
     #[cfg(feature = "num-bigint")]
-    pub fn to_big(n: Fract64) -> BigFract {
+    pub fn to_big(frac: Fract64) -> BigFract {
         Fraction::new(
-            FromPrimitive::from_i64(n.numer).unwrap(),
-            FromPrimitive::from_i64(n.denom).unwrap(),
+            FromPrimitive::from_i64(frac.numer).unwrap(),
+            FromPrimitive::from_i64(frac.denom).unwrap(),
         )
     }
     #[cfg(not(feature = "num-bigint"))]
-    pub fn to_big(n: Fract64) -> Fract64 {
+    pub fn to_big(frac: Fract64) -> Fract64 {
         Fraction::new(
-            FromPrimitive::from_i64(n.numer).unwrap(),
-            FromPrimitive::from_i64(n.denom).unwrap(),
+            FromPrimitive::from_i64(frac.numer).unwrap(),
+            FromPrimitive::from_i64(frac.denom).unwrap(),
         )
     }
 
@@ -1808,7 +1808,7 @@ mod test {
     #[test]
     #[should_panic]
     fn test_new_zero() {
-        let _a = Fraction::new(1, 0);
+        let _frac = Fraction::new(1, 0);
     }
 
     #[test]
@@ -1891,21 +1891,21 @@ mod test {
             Fraction::new(127_i8, 126_i8),
         ];
 
-        fn check_cmp(a: Fraction<i8>, b: Fraction<i8>, ord: Ordering) {
+        fn check_cmp(frac1: Fraction<i8>, frac2: Fraction<i8>, ord: Ordering) {
             #[cfg(feature = "std")]
-            println!("comparing {} and {}", a, b);
-            assert_eq!(a.cmp(&b), ord);
-            assert_eq!(b.cmp(&a), ord.reverse());
+            println!("comparing {} and {}", frac1, frac2);
+            assert_eq!(frac1.cmp(&frac2), ord);
+            assert_eq!(frac2.cmp(&frac1), ord.reverse());
         }
 
-        for (i, &a) in ratios.iter().enumerate() {
-            check_cmp(a, a, Ordering::Equal);
-            check_cmp(-a, a, Ordering::Less);
-            for &b in &ratios[i + 1..] {
-                check_cmp(a, b, Ordering::Less);
-                check_cmp(-a, -b, Ordering::Greater);
-                check_cmp(a.recip(), b.recip(), Ordering::Greater);
-                check_cmp(-a.recip(), -b.recip(), Ordering::Less);
+        for (idx, &frac) in ratios.iter().enumerate() {
+            check_cmp(frac, frac, Ordering::Equal);
+            check_cmp(-frac, frac, Ordering::Less);
+            for &other_frac in &ratios[idx + 1..] {
+                check_cmp(frac, other_frac, Ordering::Less);
+                check_cmp(-frac, -other_frac, Ordering::Greater);
+                check_cmp(frac.recip(), other_frac.recip(), Ordering::Greater);
+                check_cmp(-frac.recip(), -other_frac.recip(), Ordering::Less);
             }
         }
     }
@@ -1978,8 +1978,8 @@ mod test {
 
     #[cfg(not(feature = "std"))]
     impl Write for NoStdTester {
-        fn write_str(&mut self, s: &str) -> fmt::Result {
-            for byte in s.bytes() {
+        fn write_str(&mut self, text: &str) -> fmt::Result {
+            for byte in text.bytes() {
                 self.buf[self.cursor] = byte;
                 self.cursor += 1;
                 if self.cursor >= self.buf.len() {
@@ -1992,10 +1992,10 @@ mod test {
 
     #[cfg(not(feature = "std"))]
     impl PartialEq<str> for NoStdTester {
-        fn eq(&self, other: &str) -> bool {
-            let other = other.as_bytes();
-            for index in 0..self.cursor {
-                if self.buf.get(index) != other.get(index) {
+        fn eq(&self, other_str: &str) -> bool {
+            let other_bytes = other_str.as_bytes();
+            for idx in 0..self.cursor {
+                if self.buf.get(idx) != other_bytes.get(idx) {
                     return false;
                 }
             }
@@ -2119,29 +2119,29 @@ mod test {
 
         #[test]
         fn test_add() {
-            fn test(a: Fract64, b: Fract64, c: Fract64) {
-                assert_eq!(a + b, c);
+            fn test(frac1: Fract64, frac2: Fract64, result: Fract64) {
+                assert_eq!(frac1 + frac2, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x += b;
-                        x
+                        let mut temp = frac1;
+                        temp += frac2;
+                        temp
                     },
-                    c
+                    result
                 );
-                assert_eq!(to_big(a) + to_big(b), to_big(c));
-                assert_eq!(a.checked_add(&b), Some(c));
-                assert_eq!(to_big(a).checked_add(&to_big(b)), Some(to_big(c)));
+                assert_eq!(to_big(frac1) + to_big(frac2), to_big(result));
+                assert_eq!(frac1.checked_add(&frac2), Some(result));
+                assert_eq!(to_big(frac1).checked_add(&to_big(frac2)), Some(to_big(result)));
             }
-            fn test_assign(a: Fract64, b: i64, c: Fract64) {
-                assert_eq!(a + b, c);
+            fn test_assign(frac: Fract64, val: i64, result: Fract64) {
+                assert_eq!(frac + val, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x += b;
-                        x
+                        let mut temp = frac;
+                        temp += val;
+                        temp
                     },
-                    c
+                    result
                 );
             }
 
@@ -2166,9 +2166,9 @@ mod test {
                 assert_eq!(_1_max.clone() + _1_max.clone(), _2_max);
                 assert_eq!(
                     {
-                        let mut tmp = _1_max.clone();
-                        tmp += _1_max;
-                        tmp
+                        let mut temp = _1_max.clone();
+                        temp += _1_max;
+                        temp
                     },
                     _2_max
                 );
@@ -2190,29 +2190,29 @@ mod test {
 
         #[test]
         fn test_sub() {
-            fn test(a: Fract64, b: Fract64, c: Fract64) {
-                assert_eq!(a - b, c);
+            fn test(frac1: Fract64, frac2: Fract64, result: Fract64) {
+                assert_eq!(frac1 - frac2, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x -= b;
-                        x
+                        let mut temp = frac1;
+                        temp -= frac2;
+                        temp
                     },
-                    c
+                    result
                 );
-                assert_eq!(to_big(a) - to_big(b), to_big(c));
-                assert_eq!(a.checked_sub(&b), Some(c));
-                assert_eq!(to_big(a).checked_sub(&to_big(b)), Some(to_big(c)));
+                assert_eq!(to_big(frac1) - to_big(frac2), to_big(result));
+                assert_eq!(frac1.checked_sub(&frac2), Some(result));
+                assert_eq!(to_big(frac1).checked_sub(&to_big(frac2)), Some(to_big(result)));
             }
-            fn test_assign(a: Fract64, b: i64, c: Fract64) {
-                assert_eq!(a - b, c);
+            fn test_assign(frac: Fract64, val: i64, result: Fract64) {
+                assert_eq!(frac - val, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x -= b;
-                        x
+                        let mut temp = frac;
+                        temp -= val;
+                        temp
                     },
-                    c
+                    result
                 );
             }
 
@@ -2255,29 +2255,29 @@ mod test {
 
         #[test]
         fn test_mul() {
-            fn test(a: Fract64, b: Fract64, c: Fract64) {
-                assert_eq!(a * b, c);
+            fn test(frac1: Fract64, frac2: Fract64, result: Fract64) {
+                assert_eq!(frac1 * frac2, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x *= b;
-                        x
+                        let mut temp = frac1;
+                        temp *= frac2;
+                        temp
                     },
-                    c
+                    result
                 );
-                assert_eq!(to_big(a) * to_big(b), to_big(c));
-                assert_eq!(a.checked_mul(&b), Some(c));
-                assert_eq!(to_big(a).checked_mul(&to_big(b)), Some(to_big(c)));
+                assert_eq!(to_big(frac1) * to_big(frac2), to_big(result));
+                assert_eq!(frac1.checked_mul(&frac2), Some(result));
+                assert_eq!(to_big(frac1).checked_mul(&to_big(frac2)), Some(to_big(result)));
             }
-            fn test_assign(a: Fract64, b: i64, c: Fract64) {
-                assert_eq!(a * b, c);
+            fn test_assign(frac: Fract64, val: i64, result: Fract64) {
+                assert_eq!(frac * val, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x *= b;
-                        x
+                        let mut temp = frac;
+                        temp *= val;
+                        temp
                     },
-                    c
+                    result
                 );
             }
 
@@ -2344,29 +2344,29 @@ mod test {
 
         #[test]
         fn test_div() {
-            fn test(a: Fract64, b: Fract64, c: Fract64) {
-                assert_eq!(a / b, c);
+            fn test(frac1: Fract64, frac2: Fract64, result: Fract64) {
+                assert_eq!(frac1 / frac2, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x /= b;
-                        x
+                        let mut temp = frac1;
+                        temp /= frac2;
+                        temp
                     },
-                    c
+                    result
                 );
-                assert_eq!(to_big(a) / to_big(b), to_big(c));
-                assert_eq!(a.checked_div(&b), Some(c));
-                assert_eq!(to_big(a).checked_div(&to_big(b)), Some(to_big(c)));
+                assert_eq!(to_big(frac1) / to_big(frac2), to_big(result));
+                assert_eq!(frac1.checked_div(&frac2), Some(result));
+                assert_eq!(to_big(frac1).checked_div(&to_big(frac2)), Some(to_big(result)));
             }
-            fn test_assign(a: Fract64, b: i64, c: Fract64) {
-                assert_eq!(a / b, c);
+            fn test_assign(frac: Fract64, val: i64, result: Fract64) {
+                assert_eq!(frac / val, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x /= b;
-                        x
+                        let mut temp = frac;
+                        temp /= val;
+                        temp
                     },
-                    c
+                    result
                 );
             }
 
@@ -2433,27 +2433,29 @@ mod test {
 
         #[test]
         fn test_rem() {
-            fn test(a: Fract64, b: Fract64, c: Fract64) {
-                assert_eq!(a % b, c);
+            fn test(frac1: Fract64, frac2: Fract64, result: Fract64) {
+                assert_eq!(frac1 % frac2, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x %= b;
-                        x
+                        let mut temp = frac1;
+                        temp %= frac2;
+                        temp
                     },
-                    c
+                    result
                 );
-                assert_eq!(to_big(a) % to_big(b), to_big(c))
+                assert_eq!(to_big(frac1) % to_big(frac2), to_big(result));
+                assert_eq!(frac1.checked_rem(&frac2), Some(result));
+                assert_eq!(to_big(frac1).checked_rem(&to_big(frac2)), Some(to_big(result)));
             }
-            fn test_assign(a: Fract64, b: i64, c: Fract64) {
-                assert_eq!(a % b, c);
+            fn test_assign(frac: Fract64, val: i64, result: Fract64) {
+                assert_eq!(frac % val, result);
                 assert_eq!(
                     {
-                        let mut x = a;
-                        x %= b;
-                        x
+                        let mut temp = frac;
+                        temp %= val;
+                        temp
                     },
-                    c
+                    result
                 );
             }
 
@@ -2502,9 +2504,9 @@ mod test {
 
         #[test]
         fn test_neg() {
-            fn test(a: Fract64, b: Fract64) {
-                assert_eq!(-a, b);
-                assert_eq!(-to_big(a), to_big(b))
+            fn test(frac: Fract64, result: Fract64) {
+                assert_eq!(-frac, result);
+                assert_eq!(-to_big(frac), to_big(result))
             }
 
             test(_0, _0);
@@ -2523,7 +2525,7 @@ mod test {
         #[test]
         #[should_panic]
         fn test_div_0() {
-            let _a = _1 / _0;
+            let _result = _1 / _0;
         }
 
         #[test]
@@ -2692,30 +2694,30 @@ mod test {
     #[test]
     #[should_panic(expected = "division by zero")]
     fn test_recip_fail() {
-        let _a = Fraction::new(0, 1).recip();
+        let _result = Fraction::new(0, 1).recip();
     }
 
     #[test]
     fn test_pow() {
-        fn test(r: Fract64, e: i32, expected: Fract64) {
-            assert_eq!(r.pow(e), expected);
-            assert_eq!(Pow::pow(r, e), expected);
-            assert_eq!(Pow::pow(r, &e), expected);
-            assert_eq!(Pow::pow(&r, e), expected);
-            assert_eq!(Pow::pow(&r, &e), expected);
+        fn test(frac: Fract64, exp: i32, expected: Fract64) {
+            assert_eq!(frac.pow(exp), expected);
+            assert_eq!(Pow::pow(frac, exp), expected);
+            assert_eq!(Pow::pow(frac, &exp), expected);
+            assert_eq!(Pow::pow(&frac, exp), expected);
+            assert_eq!(Pow::pow(&frac, &exp), expected);
             #[cfg(feature = "num-bigint")]
-            test_big(r, e, expected);
+            test_big(frac, exp, expected);
         }
 
         #[cfg(feature = "num-bigint")]
-        fn test_big(r: Fract64, e: i32, expected: Fract64) {
-            let r = BigFract::new_raw(r.numer.into(), r.denom.into());
-            let expected = BigFract::new_raw(expected.numer.into(), expected.denom.into());
-            assert_eq!((&r).pow(e), expected);
-            assert_eq!(Pow::pow(r.clone(), e), expected);
-            assert_eq!(Pow::pow(r.clone(), &e), expected);
-            assert_eq!(Pow::pow(&r, e), expected);
-            assert_eq!(Pow::pow(&r, &e), expected);
+        fn test_big(frac: Fract64, exp: i32, expected: Fract64) {
+            let big_frac = BigFract::new_raw(frac.numer.into(), frac.denom.into());
+            let big_expected = BigFract::new_raw(expected.numer.into(), expected.denom.into());
+            assert_eq!((&big_frac).pow(exp), big_expected);
+            assert_eq!(Pow::pow(big_frac.clone(), exp), big_expected);
+            assert_eq!(Pow::pow(big_frac.clone(), &exp), big_expected);
+            assert_eq!(Pow::pow(&big_frac, exp), big_expected);
+            assert_eq!(Pow::pow(&big_frac, &exp), big_expected);
         }
 
         test(_1_2, 2, Fraction::new(1, 4));
@@ -2734,9 +2736,9 @@ mod test {
     #[cfg(feature = "std")]
     fn test_to_from_str() {
         use std::string::{String, ToString};
-        fn test(r: Fract64, s: String) {
-            assert_eq!(FromStr::from_str(&s), Ok(r));
-            assert_eq!(r.to_string(), s);
+        fn test(frac: Fract64, str_val: String) {
+            assert_eq!(FromStr::from_str(&str_val), Ok(frac));
+            assert_eq!(frac.to_string(), str_val);
         }
         test(_1, "1".to_string());
         test(_0, "0".to_string());
@@ -2747,14 +2749,14 @@ mod test {
     }
     #[test]
     fn test_from_str_fail() {
-        fn test(s: &str) {
-            let rational: Result<Fract64, _> = FromStr::from_str(s);
+        fn test(str_val: &str) {
+            let rational: Result<Fract64, _> = FromStr::from_str(str_val);
             assert!(rational.is_err());
         }
 
-        let xs = ["0 /1", "abc", "", "1/", "--1/2", "3/2/1", "1/0"];
-        for &s in xs.iter() {
-            test(s);
+        let test_strings = ["0 /1", "abc", "", "1/", "--1/2", "3/2/1", "1/0"];
+        for &str_val in test_strings.iter() {
+            test(str_val);
         }
     }
 
@@ -2762,13 +2764,13 @@ mod test {
     #[test]
     fn test_from_float() {
         use num_traits::float::FloatCore;
-        fn test<T: FloatCore>(given: T, (numer, denom): (&str, &str)) {
-            let ratio: BigFract = Fraction::from_float(given).unwrap();
+        fn test<T: FloatCore>(float_val: T, (num_str, den_str): (&str, &str)) {
+            let ratio: BigFract = Fraction::from_float(float_val).unwrap();
             assert_eq!(
                 ratio,
                 Fraction::new(
-                    FromStr::from_str(numer).unwrap(),
-                    FromStr::from_str(denom).unwrap()
+                    FromStr::from_str(num_str).unwrap(),
+                    FromStr::from_str(den_str).unwrap()
                 )
             );
         }
@@ -2845,15 +2847,15 @@ mod test {
         assert!(crate::hash(&_0) != crate::hash(&_3_2));
 
         // a == b -> hash(a) == hash(b)
-        let a = Fract64::new_raw(4, 2);
-        let b = Fract64::new_raw(6, 3);
-        assert_eq!(a, b);
-        assert_eq!(crate::hash(&a), crate::hash(&b));
+        let frac1 = Fract64::new_raw(4, 2);
+        let frac2 = Fract64::new_raw(6, 3);
+        assert_eq!(frac1, frac2);
+        assert_eq!(crate::hash(&frac1), crate::hash(&frac2));
 
-        let a = Fract64::new_raw(123456789, 1000);
-        let b = Fract64::new_raw(123456789 * 5, 5000);
-        assert_eq!(a, b);
-        assert_eq!(crate::hash(&a), crate::hash(&b));
+        let frac1 = Fract64::new_raw(123456789, 1000);
+        let frac2 = Fract64::new_raw(123456789 * 5, 5000);
+        assert_eq!(frac1, frac2);
+        assert_eq!(crate::hash(&frac1), crate::hash(&frac2));
     }
 
     #[test]
@@ -2877,15 +2879,15 @@ mod test {
         // for any Iterator with Item = Fraction<impl Integer> or Fraction<&impl Integer>
         fn iter_sums<T: Integer + Clone>(slice: &[Fraction<T>]) -> [Fraction<T>; 3] {
             let mut manual_sum = Fraction::new(T::zero(), T::one());
-            for ratio in slice {
-                manual_sum = manual_sum + ratio;
+            for frac in slice {
+                manual_sum = manual_sum + frac;
             }
             [manual_sum, slice.iter().sum(), slice.iter().cloned().sum()]
         }
         // collect into array so test works on no_std
         let mut nums = [Fraction::new(0, 1); 1000];
-        for (i, r) in (0..1000).map(|n| Fraction::new(n, 500)).enumerate() {
-            nums[i] = r;
+        for (idx, frac) in (0..1000).map(|n| Fraction::new(n, 500)).enumerate() {
+            nums[idx] = frac;
         }
         let sums = iter_sums(&nums[..]);
         assert_eq!(sums[0], sums[1]);
@@ -2898,8 +2900,8 @@ mod test {
         // for any Iterator with Item = Fraction<impl Integer> or Fraction<&impl Integer>
         fn iter_products<T: Integer + Clone>(slice: &[Fraction<T>]) -> [Fraction<T>; 3] {
             let mut manual_prod = Fraction::new(T::one(), T::one());
-            for ratio in slice {
-                manual_prod = manual_prod * ratio;
+            for frac in slice {
+                manual_prod = manual_prod * frac;
             }
             [
                 manual_prod,
@@ -2910,8 +2912,8 @@ mod test {
 
         // collect into array so test works on no_std
         let mut nums = [Fraction::new(0, 1); 1000];
-        for (i, r) in (0..1000).map(|n| Fraction::new(n, 500)).enumerate() {
-            nums[i] = r;
+        for (idx, frac) in (0..1000).map(|n| Fraction::new(n, 500)).enumerate() {
+            nums[idx] = frac;
         }
         let products = iter_products(&nums[..]);
         assert_eq!(products[0], products[1]);
@@ -2923,12 +2925,12 @@ mod test {
         let zero = Fract64::zero();
         assert!(zero.is_zero());
 
-        let mut r = Fract64::new(123, 456);
-        assert!(!r.is_zero());
-        assert_eq!(r + zero, r);
+        let mut frac = Fract64::new(123, 456);
+        assert!(!frac.is_zero());
+        assert_eq!(frac + zero, frac);
 
-        r.set_zero();
-        assert!(r.is_zero());
+        frac.set_zero();
+        assert!(frac.is_zero());
     }
 
     #[test]
@@ -2936,11 +2938,11 @@ mod test {
         let one = Fract64::one();
         assert!(one.is_one());
 
-        let mut r = Fract64::new(123, 456);
-        assert!(!r.is_one());
-        assert_eq!(r * one, r);
+        let mut frac = Fract64::new(123, 456);
+        assert!(!frac.is_one());
+        assert_eq!(frac * one, frac);
 
-        r.set_one();
+        frac.set_one();
         assert!(r.is_one());
     }
 
@@ -2953,9 +2955,9 @@ mod test {
         assert_eq!(N_NUMER, &123);
         assert_eq!(N_DENOM, &456);
 
-        let r = N.reduced();
-        assert_eq!(r.numer(), &(123 / 3));
-        assert_eq!(r.denom(), &(456 / 3));
+        let result = N.reduced();
+        assert_eq!(result.numer(), &(123 / 3));
+        assert_eq!(result.denom(), &(456 / 3));
     }
 
     #[test]

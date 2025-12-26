@@ -42,12 +42,12 @@ use core::ops::{Add, Mul, Sub};
 /// assert_eq!(result, Fraction::<i32>::new(23, 144));
 /// ```
 #[inline]
-pub fn archimedes<T>(q_1: &T, q_2: &T, q_3: &T) -> T
+pub fn archimedes<T>(side_a: &T, side_b: &T, side_c: &T) -> T
 where
     T: Copy + Add<Output = T> + Sub<Output = T> + Mul<Output = T> + From<i32>,
 {
-    let temp = *q_1 + *q_2 - *q_3;
-    T::from(4) * *q_1 * *q_2 - temp * temp
+    let temp_sum = *side_a + *side_b - *side_c;
+    T::from(4) * *side_a * *side_b - temp_sum * temp_sum
 }
 
 #[cfg(test)]
@@ -56,18 +56,18 @@ mod tests {
 
     #[test]
     fn test_archimedes4() {
-        let q_1 = Fraction::<i32>::new(1, 2);
-        let q_2 = Fraction::<i32>::new(1, 4);
-        let q_3 = Fraction::<i32>::new(1, 6);
-        assert_eq!(archimedes(&q_1, &q_2, &q_3), Fraction::<i32>::new(23, 144));
+        let side_a = Fraction::<i32>::new(1, 2);
+        let side_b = Fraction::<i32>::new(1, 4);
+        let side_c = Fraction::<i32>::new(1, 6);
+        assert_eq!(archimedes(&side_a, &side_b, &side_c), Fraction::<i32>::new(23, 144));
     }
 
     #[test]
     fn test_archimedes5() {
-        let q_1 = Fraction::<i64>::new(1, 2);
-        let q_2 = Fraction::<i64>::new(1, 4);
-        let q_3 = Fraction::<i64>::new(1, 6);
-        assert_eq!(archimedes(&q_1, &q_2, &q_3), Fraction::<i64>::new(23, 144));
+        let side_a = Fraction::<i64>::new(1, 2);
+        let side_b = Fraction::<i64>::new(1, 4);
+        let side_c = Fraction::<i64>::new(1, 6);
+        assert_eq!(archimedes(&side_a, &side_b, &side_c), Fraction::<i64>::new(23, 144));
     }
 }
 
