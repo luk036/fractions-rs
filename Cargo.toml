@@ -85,6 +85,11 @@ std = [
 [dev-dependencies]
 quickcheck = "1"
 quickcheck_macros = "1"
+criterion = "0.5"
+
+[[bench]]
+name = "fraction_benchmarks"
+harness = false
 
 [profile.release]
 opt-level = 'z'     # Optimize for size. 's' is also an option.

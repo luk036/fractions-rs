@@ -59,7 +59,10 @@ mod tests {
         let side_a = Fraction::<i32>::new(1, 2);
         let side_b = Fraction::<i32>::new(1, 4);
         let side_c = Fraction::<i32>::new(1, 6);
-        assert_eq!(archimedes(&side_a, &side_b, &side_c), Fraction::<i32>::new(23, 144));
+        assert_eq!(
+            archimedes(&side_a, &side_b, &side_c),
+            Fraction::<i32>::new(23, 144)
+        );
     }
 
     #[test]
@@ -67,7 +70,10 @@ mod tests {
         let side_a = Fraction::<i64>::new(1, 2);
         let side_b = Fraction::<i64>::new(1, 4);
         let side_c = Fraction::<i64>::new(1, 6);
-        assert_eq!(archimedes(&side_a, &side_b, &side_c), Fraction::<i64>::new(23, 144));
+        assert_eq!(
+            archimedes(&side_a, &side_b, &side_c),
+            Fraction::<i64>::new(23, 144)
+        );
     }
 }
 

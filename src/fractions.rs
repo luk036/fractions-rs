@@ -153,7 +153,10 @@ impl<T> Fraction<T> {
     /// ```
     #[inline]
     pub const fn new_raw(num: T, den: T) -> Fraction<T> {
-        Fraction { numer: num, denom: den }
+        Fraction {
+            numer: num,
+            denom: den,
+        }
     }
 
     /// Gets an immutable reference to the numerator.
@@ -399,7 +402,10 @@ where
     /// ```
     #[inline]
     pub fn new(num: T, den: T) -> Self {
-        let mut res = Fraction { numer: num, denom: den };
+        let mut res = Fraction {
+            numer: num,
+            denom: den,
+        };
         res.normalize();
         res
     }
@@ -1610,31 +1616,32 @@ mod tests {
 
     #[test]
     fn test_add_sub_assign() {
-            let mut frac = Fraction::new(3, 4);
-                let other = Fraction::new(5, 6);
-                frac -= other;
-                assert_eq!(frac, Fraction::new(-1, 12));
-                
-                frac = Fraction::new(3, 4);
-                frac -= 2;
-                assert_eq!(frac, Fraction::new(-5, 4));
-                
-                frac = Fraction::new(3, 4);
-                frac -= &other;
-                assert_eq!(frac, Fraction::new(-1, 12));
-                
-                frac = Fraction::new(3, 4);
-                frac -= &2;
-                assert_eq!(frac, Fraction::new(-5, 4));
-                
-                frac = Fraction::new(3, 4);
-                frac -= Fraction::new(1, 0);
-                assert_eq!(frac, Fraction::new(-1, 0));
-                
-                let frac = Fraction::new(3, 4);
-                let other = Fraction::new(5, 6);
-                assert_eq!(frac - other, Fraction::new(-1, 12));
-                assert_eq!(frac + other, Fraction::new(19, 12));    }
+        let mut frac = Fraction::new(3, 4);
+        let other = Fraction::new(5, 6);
+        frac -= other;
+        assert_eq!(frac, Fraction::new(-1, 12));
+
+        frac = Fraction::new(3, 4);
+        frac -= 2;
+        assert_eq!(frac, Fraction::new(-5, 4));
+
+        frac = Fraction::new(3, 4);
+        frac -= &other;
+        assert_eq!(frac, Fraction::new(-1, 12));
+
+        frac = Fraction::new(3, 4);
+        frac -= &2;
+        assert_eq!(frac, Fraction::new(-5, 4));
+
+        frac = Fraction::new(3, 4);
+        frac -= Fraction::new(1, 0);
+        assert_eq!(frac, Fraction::new(-1, 0));
+
+        let frac = Fraction::new(3, 4);
+        let other = Fraction::new(5, 6);
+        assert_eq!(frac - other, Fraction::new(-1, 12));
+        assert_eq!(frac + other, Fraction::new(19, 12));
+    }
 
     #[test]
     fn test_mul_div() {
