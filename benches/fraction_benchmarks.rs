@@ -213,7 +213,9 @@ fn bench_archimedes(c: &mut Criterion) {
     let side_c = Fraction::<i32>::new(1, 6);
 
     group.bench_function("archimedes_i32", |b| {
-        b.iter(|| fractions::archimedes(black_box(&side_a), black_box(&side_b), black_box(&side_c)));
+        b.iter(|| {
+            fractions::archimedes(black_box(&side_a), black_box(&side_b), black_box(&side_c))
+        });
     });
 
     let side_a64 = Fraction::<i64>::new(1, 2);
@@ -221,7 +223,13 @@ fn bench_archimedes(c: &mut Criterion) {
     let side_c64 = Fraction::<i64>::new(1, 6);
 
     group.bench_function("archimedes_i64", |b| {
-        b.iter(|| fractions::archimedes(black_box(&side_a64), black_box(&side_b64), black_box(&side_c64)));
+        b.iter(|| {
+            fractions::archimedes(
+                black_box(&side_a64),
+                black_box(&side_b64),
+                black_box(&side_c64),
+            )
+        });
     });
 
     group.finish();
