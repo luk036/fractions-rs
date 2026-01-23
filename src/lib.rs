@@ -10,8 +10,7 @@
 #![allow(clippy::suspicious_op_assign_impl)]
 
 pub mod fractions;
-pub use crate::fractions::Fraction;
-pub use crate::fractions::{const_abs, const_gcd};
+pub use fractions::{const_abs, const_gcd, Fraction};
 
 use core::ops::{Add, Mul, Sub};
 

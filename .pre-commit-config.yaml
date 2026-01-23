@@ -1,0 +1,43 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [rust]
+      
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        entry: end-of-file-fixer
+        language: system
+        types: [rust]
+      
+      - id: check-yaml
+        name: Check YAML
+        entry: check-yaml
+        language: system
+        files: \.yaml$
+        exclude: ^target/
+      
+      - id: check-toml
+        name: Check TOML
+        entry: check-toml
+        language: system
+        files: \.toml$
+        exclude: ^target/
+      
+      - id: rust-format
+        name: Rust Format
+        entry: cargo fmt --all -- --check
+        language: system
+        files: \.rs$
+        pass_filenames: true
+      
+      - id: rust-clippy
+        name: Rust Clippy
+        entry: cargo clippy --all-targets --all-features --workspace
+        language: system
+        files: \.rs$
+        pass_filenames: true

@@ -1,0 +1,18 @@
+push-tag = true
+publish = false
+push = false
+pre-release-replacements = [
+  { file = "Cargo.toml", search = "^version = \".*?\"", replace = "version = \"{{version}}\"" },
+  { file = "Cargo.toml", search = "\"fractions\" = \".*?\"", replace = "\"fractions\" = \"{{version}}\"" }
+]
+pre-release-hook = [
+  "cargo test --all-features",
+  "cargo clippy --all-targets --all-features --workspace"
+]
+tag-prefix = ""
+tag-name = "{{version}}"
+sign-commit = true
+sign-tag = true
+dev-version-ext = "pre"
+consolidate-commits = false
+consolidate-pushes = false

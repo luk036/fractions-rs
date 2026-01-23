@@ -1,0 +1,2 @@
+default = ["num-bigint-std", "std", "try-api"]
+try-api = []

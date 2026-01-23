@@ -667,11 +667,22 @@ impl From<i32> for Fraction<i64> {
     ///
     /// # Examples
     ///
+    /// Basic usage:
     /// ```
     /// use fractions::Fraction;
     ///
-    /// let f = Fraction::<i64>::from(3i32);
-    /// assert_eq!(f, Fraction::<i64>::new(3, 1));
+    /// let whole = Fraction::<i32>::from(5);
+    /// assert_eq!(whole, Fraction::new(5, 1));
+    /// ```
+    ///
+    /// Practical use case - combining with fractions:
+    /// ```
+    /// use fractions::Fraction;
+    ///
+    /// let whole = Fraction::<i32>::from(2);
+    /// let frac = Fraction::new(1, 3);
+    /// let result = whole + frac;
+    /// assert_eq!(result, Fraction::new(7, 3));
     /// ```
     #[inline]
     fn from(val: i32) -> Self {
