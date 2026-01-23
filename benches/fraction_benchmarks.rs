@@ -253,11 +253,11 @@ fn bench_special_values(c: &mut Criterion) {
     let mut group = c.benchmark_group("special_values");
 
     group.bench_function("zero", |b| {
-        b.iter(|| Fraction::<i32>::zero());
+        b.iter(Fraction::<i32>::zero);
     });
 
     group.bench_function("one", |b| {
-        b.iter(|| Fraction::<i32>::one());
+        b.iter(Fraction::<i32>::one);
     });
 
     group.bench_function("is_zero", |b| {
