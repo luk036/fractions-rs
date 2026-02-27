@@ -12,6 +12,9 @@
 pub mod fractions;
 pub use fractions::{const_abs, const_gcd, Fraction};
 
+#[cfg(feature = "std")]
+pub mod logging;
+
 use core::ops::{Add, Mul, Sub};
 
 /// The function `archimedes` calculates the area of a triangle using Archimedes' formula with the

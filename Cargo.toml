@@ -68,6 +68,14 @@ version = "1.0.219"
 optional = true
 default-features = false
 
+[dependencies.env_logger]
+version = "0.11"
+optional = true
+
+[dependencies.log]
+version = "0.4"
+optional = true
+
 [build-dependencies.autocfg]
 version = "1.4.0"
 
@@ -80,6 +88,8 @@ num-bigint-std = ["num-bigint/std"]
 std = [
     "num-integer/std",
     "num-traits/std",
+    "dep:env_logger",
+    "dep:log",
 ]
 
 [dev-dependencies]
