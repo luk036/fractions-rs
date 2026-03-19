@@ -22,10 +22,10 @@ use core::ops::{Add, Mul, Sub};
 ///
 /// Arguments:
 ///
-/// * `q_1`: Represents the length of the first side of the triangle.
-/// * `q_2`: The parameters `q_1`, `q_2`, and `q_3` represent the lengths of the sides of a triangle. In
-///   the context of Archimedes' formula for the area of a triangle, `q_1`, `q_2`, and `q_3`
-/// * `q_3`: The parameter `q_3` represents the length of the third side of the triangle.
+/// * `side_a`: Represents the length of the first side of the triangle.
+/// * `side_b`: The parameters `side_a`, `side_b`, and `side_c` represent the lengths of the sides of a triangle. In
+///   the context of Archimedes' formula for the area of a triangle, `side_a`, `side_b`, and `side_c`
+/// * `side_c`: The parameter `side_c` represents the length of the third side of the triangle.
 ///
 /// Returns:
 ///

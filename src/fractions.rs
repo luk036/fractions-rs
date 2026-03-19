@@ -31,11 +31,11 @@ use core::hash::{Hash, Hasher};
 ///
 /// Arguments:
 ///
-/// * `a`: The parameter `a` is of type `i32`, which means it is an integer.
+/// * `val`: The parameter `val` is of type `T`, which means it is an integer.
 ///
 /// Returns:
 ///
-/// The function `const_abs` returns the absolute value of the input `a`.
+/// The function `const_abs` returns the absolute value of the input `val`.
 ///
 /// # Examples
 ///
@@ -58,15 +58,15 @@ pub fn const_abs<T: Integer + Neg<Output = T>>(val: T) -> T {
 ///
 /// Arguments:
 ///
-/// * `m`: An integer representing the first number for which we want to find the greatest common
+/// * `val_a`: An integer representing the first number for which we want to find the greatest common
 ///   divisor (GCD).
-/// * `n`: The parameter `n` represents the second number in the pair for which we want to find the
+/// * `val_b`: The parameter `val_b` represents the second number in the pair for which we want to find the
 ///   greatest common divisor (GCD).
 ///
 /// Returns:
 ///
-/// The function `gcd_recur` returns the greatest common divisor (GCD) of the two input integers `m` and
-/// `n`.
+/// The function `gcd_recur` returns the greatest common divisor (GCD) of the two input integers `val_a` and
+/// `val_b`.
 #[inline]
 fn gcd_recur<T: Integer + Neg<Output = T> + Copy>(val_a: T, val_b: T) -> T {
     if val_b == Zero::zero() {
@@ -81,15 +81,15 @@ fn gcd_recur<T: Integer + Neg<Output = T> + Copy>(val_a: T, val_b: T) -> T {
 ///
 /// Arguments:
 ///
-/// * `m`: The parameter `m` represents the first integer for which we want to find the greatest common
+/// * `val_a`: The parameter `val_a` represents the first integer for which we want to find the greatest common
 ///   divisor (GCD).
-/// * `n`: The parameter `n` represents the first number for which we want to find the greatest common
+/// * `val_b`: The parameter `val_b` represents the second number for which we want to find the greatest common
 ///   divisor (GCD).
 ///
 /// Returns:
 ///
-/// The function `const_gcd` returns an `i32` value, which represents the greatest common divisor of the
-/// two input integers `m` and `n`.
+/// The function `const_gcd` returns a value of type `T`, which represents the greatest common divisor of the
+/// two input integers `val_a` and `val_b`.
 ///
 /// # Examples
 ///
@@ -382,9 +382,9 @@ where
     ///
     /// Arguments:
     ///
-    /// * `numer`: The `numer` parameter represents the numerator of the fraction. It is the number above
+    /// * `num`: The `num` parameter represents the numerator of the fraction. It is the number above
     ///   the fraction line.
-    /// * `denom`: The parameter `denom` represents the denominator of the fraction. It is the number below
+    /// * `den`: The parameter `den` represents the denominator of the fraction. It is the number below
     ///   the line in a fraction and represents the total number of equal parts into which the whole is
     ///   divided.
     ///
@@ -631,7 +631,7 @@ impl<T: Integer + One> From<T> for Fraction<T> {
     ///
     /// Arguments:
     ///
-    /// * `numer`: The `numer` parameter is an integer value that will be used to create a new `Fraction` object.
+    /// * `num`: The `num` parameter is an integer value that will be used to create a new `Fraction` object.
     ///
     /// Returns:
     ///
@@ -659,7 +659,7 @@ impl From<i32> for Fraction<i64> {
     ///
     /// Arguments:
     ///
-    /// * `numer`: The `numer` parameter is an integer value that will be used to create a new `Fraction` object.
+    /// * `val`: The `val` parameter is an integer value that will be used to create a new `Fraction` object.
     ///
     /// Returns:
     ///
