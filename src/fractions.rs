@@ -54,7 +54,10 @@ pub fn const_abs<T: Integer + Neg<Output = T>>(val: T) -> T {
     }
 }
 
-/// The function calculates the greatest common divisor (GCD) of two integers using recursion.
+/// Calculates the greatest common divisor (GCD) of two integers using recursion.
+///
+/// This is an internal helper function used by `const_gcd`. It implements
+/// the Euclidean algorithm recursively.
 ///
 /// Arguments:
 ///
@@ -467,6 +470,9 @@ where
         }
     }
 
+    /// Returns the sign of the fraction as a new Fraction.
+    ///
+    /// Returns `1/1` if positive, `0/1` if zero, and `-1/1` if negative.
     #[inline]
     fn signum(&self) -> Fraction<T> {
         if self.is_positive() {
@@ -478,11 +484,13 @@ where
         }
     }
 
+    /// Checks if the fraction is positive (numerator > 0).
     #[inline]
     fn is_positive(&self) -> bool {
         self.numer.is_positive()
     }
 
+    /// Checks if the fraction is negative (numerator < 0).
     #[inline]
     fn is_negative(&self) -> bool {
         self.numer.is_negative()
@@ -986,15 +994,19 @@ macro_rules! scalar_ord_eq {
 scalar_ord_eq!(i8, i16, i32, i64);
 
 impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd for Fraction<T> {
+    /// Compares two fractions for ordering.
+    ///
+    /// Returns `Some(Ordering)` indicating the relationship between the two fractions.
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
-    /// The above code is defining a Rust module and documenting the `PartialOrd` trait for a custom
-    /// type `Fraction`. It provides an example usage of comparing two `Fraction` instances using the
-    /// `>` operator.
+    /// Compares two fractions and returns their ordering.
+    ///
+    /// This implementation compares fractions by cross-multiplying to avoid
+    /// precision loss: a/b < c/d iff a*d < c*b.
     ///
     /// # Examples
     ///
