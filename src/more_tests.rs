@@ -86,3 +86,49 @@ fn test_from_i32_to_i64() {
     let f_i64 = Fraction::<i64>::from(f_i32);
     assert_eq!(f_i64, Fraction::new(3i64, 1i64));
 }
+
+#[cfg(feature = "num-bigint")]
+#[test]
+fn test_bigint_raw_construction() {
+    use num_bigint::BigInt;
+
+    let num = BigInt::from(1);
+    let den = BigInt::from(2);
+    let f = Fraction::new_raw(num, den);
+
+    assert_eq!(*f.numer(), BigInt::from(1));
+    assert_eq!(*f.denom(), BigInt::from(2));
+    assert!(!f.is_zero());
+
+    let inf = Fraction::new_raw(BigInt::from(1), BigInt::from(0));
+    assert!(inf.is_infinite());
+}
+
+#[cfg(feature = "num-bigint")]
+#[test]
+fn test_bigint_zero_one() {
+    use num_bigint::BigInt;
+
+    let zero = Fraction::<BigInt>::zero();
+    assert_eq!(*zero.numer(), BigInt::from(0));
+    assert_eq!(*zero.denom(), BigInt::from(1));
+    assert!(zero.is_zero());
+
+    let one = Fraction::<BigInt>::one();
+    assert_eq!(*one.numer(), BigInt::from(1));
+    assert_eq!(*one.denom(), BigInt::from(1));
+}
+
+#[cfg(feature = "num-bigint")]
+#[test]
+fn test_bigint_special_values() {
+    use num_bigint::BigInt;
+
+    let inf = Fraction::new_raw(BigInt::from(1), BigInt::from(0));
+    let neg_inf = Fraction::new_raw(BigInt::from(-1), BigInt::from(0));
+    let nan = Fraction::new_raw(BigInt::from(0), BigInt::from(0));
+
+    assert!(inf.is_infinite());
+    assert!(neg_inf.is_infinite());
+    assert!(nan.is_nan());
+}
