@@ -1,0 +1,12 @@
+[package]
+name = "fractions-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+libfuzzer-sys = "0.4"
+fractions = { path = ".." }
+
+[profile.release]
+opt-level = 3

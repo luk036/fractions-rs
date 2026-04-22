@@ -2,7 +2,27 @@
 //!
 //! ## Compatibility
 //!
-//! The `fractions-rs` crate is tested for rustc 1.31 and greater.
+//! The `fractions-rs` crate is tested for rustc 1.70 and greater.
+//! It supports `no_std` environments with optional features:
+//!
+//! ```toml
+//! [dependencies]
+//! fractions = { version = "0.1", default-features = false }
+//! ```
+//!
+//! ## no_std Usage
+//!
+//! ```ignore
+//! #![no_std]
+//! use fractions::Fraction;
+//!
+//! fn main() {
+//!     let a = Fraction::new(1i32, 2);
+//!     let b = Fraction::new(1i32, 4);
+//!     let c = a + b;
+//!     assert_eq!(c, Fraction::new(3, 4));
+//! }
+//! ```
 
 // #![no_std]
 // Fraction ops often use other "suspicious" ops

@@ -60,3 +60,17 @@ jobs:
         env:
           RUSTDOCFLAGS: -D warnings
         run: cargo doc --no-deps --document-private-items --all-features --workspace --examples
+
+ deps:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Check for unused dependencies
+        run: cargo install cargo-udeps && cargo +nightly udeps
+      - name: Check for outdated dependencies
+        run: cargo install cargo-outdated && cargo outdated --format JSON

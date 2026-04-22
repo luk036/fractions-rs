@@ -20,6 +20,9 @@ cargo test fractions::tests::test_new
 # Run tests in specific module
 cargo test fractions
 
+# Run tests matching pattern
+cargo test test_*
+
 # Lint
 cargo clippy --all-targets --all-features --workspace
 
@@ -37,10 +40,13 @@ cargo bench bench_fraction_creation
 
 # Documentation
 cargo doc --no-deps --document-private-items --all-features --workspace --examples
+
+# Security audit
+cargo audit
 ```
 
 ### CI Pipeline
-GitHub Actions runs: test, rustfmt check, clippy, docs, security audit, multi-toolchain testing.
+GitHub Actions runs: test, rustfmt check, clippy, docs, security audit (cargo-audit), multi-toolchain testing.
 
 ## Code Style Guidelines
 
@@ -76,6 +82,15 @@ use num_traits::{One, Signed, Zero};
 - Item-level: `///` with description, Arguments, Returns, and Examples sections
 - All public APIs must have documentation
 - Examples use `assert_eq!` for verification
+- Use `///` for public item docs, `//` for internal comments
+
+### Crate-Level Attributes
+- Place at top of lib.rs or main.rs
+- Common attributes:
+```rust
+#![allow(unused_imports)]
+#![allow(dead_code)]
+```
 
 ## Implementation Patterns
 
@@ -91,11 +106,17 @@ use num_traits::{One, Signed, Zero};
 - Special values (∞, NaN) are valid states, not errors
 - Document panics but don't explicitly handle
 
+### Logging
+- Optional logging via `log` crate (feature-gated)
+- Use `env_logger` for development when std feature enabled
+- Log levels: error, warn, info, debug, trace
+
 ### Testing
 - Unit tests inline: `#[cfg(test)] mod tests { ... }`
 - Property-based tests: quickcheck with `#[quickcheck]` macro
 - Comprehensive edge case coverage (infinity, NaN, zero, overflow)
 - 33+ test functions across codebase
+- Derive Copy/Clone for test equality checks
 
 ### Attributes & Macros
 - Use `#[inline]` for small functions
@@ -103,15 +124,34 @@ use num_traits::{One, Signed, Zero};
 - `#[allow(clippy::suspicious_*_impl)]` at crate level for custom arithmetic
 - Macros reduce boilerplate in trait implementations
 
+### Trait Derives
+- Common derives on Fraction:
+```rust
+#[derive(PartialEq, Eq, Copy, Clone, Hash, Debug)]
+```
+
 ## Project Structure
 ```
 src/
 ├── lib.rs           # Entry point, exports, archimedes helper
-├── fractions.rs     # Main Fraction implementation (1,966 lines)
-└── main.rs          # Placeholder binary
+├── fractions.rs     # Main Fraction implementation (1,966+ lines)
+├── logging.rs       # Optional logging utilities
+├── more_tests.rs    # Additional test utilities
+├── main.rs          # Placeholder binary
 benches/
 └── fraction_benchmarks.rs  # Criterion benchmarks
 ```
+
+## Features
+
+### Available Cargo Features
+- `std`: Enable standard library support (default)
+- `num-bigint`: Enable big integer support
+- `serde`: Enable serialization support
+
+### Feature Flags
+- All features are opt-in for no_std compatibility
+- Default features: `num-bigint-std`, `std`
 
 ## Recent Enhancements
 
@@ -122,8 +162,7 @@ benches/
 
 ### Developer Tooling Added
 - **Pre-commit hooks**: `.pre-commit-config.yaml` with cargo fmt, clippy checks
-- **Release automation**: `release.toml` for cargo-release integration
-- **Examples directory**: `examples/financial.rs`, `examples/measurement.rs` with real-world usage
+- **Release automation**: `release.toml` for cargo-release integration (signs commits/tags)
 
 ### Configuration Files Created
 - `.pre-commit-config.yaml`: Pre-commit hooks for formatting and linting
@@ -131,8 +170,18 @@ benches/
 - `AGENTS.md`: This file for agentic development guidance
 
 ## Before Committing
+
 1. Run `cargo test --all-features --workspace`
 2. Run `cargo clippy --all-targets --all-features --workspace`
 3. Run `cargo fmt --all --check`
 4. Update CHANGELOG.md under "Unreleased" section
 5. Ensure all public APIs have doc comments with examples
+
+## Release Process
+
+When preparing a release:
+- Update version in `Cargo.toml`
+- Use `release.toml` for cargo-release integration
+- Pre-release hook runs tests and clippy automatically
+- Commits and tags are GPG-signed
+- Tag format: `{version}` (e.g., `0.1.5`)

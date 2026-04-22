@@ -14,6 +14,7 @@ use num_traits::{Inv, Num, NumAssign, One, Signed, Zero};
 // #[cfg(feature = "std")]
 // use std::error::Error;
 use core::cmp::Ordering;
+use core::convert::TryFrom;
 use core::mem; // for swap
 
 use core::fmt;
@@ -698,6 +699,46 @@ impl From<i32> for Fraction<i64> {
             numer: val as i64,
             denom: One::one(),
         }
+    }
+}
+
+impl From<u8> for Fraction<i32> {
+    #[inline]
+    fn from(val: u8) -> Self {
+        Fraction {
+            numer: val as i32,
+            denom: One::one(),
+        }
+    }
+}
+
+impl From<i8> for Fraction<i32> {
+    #[inline]
+    fn from(val: i8) -> Self {
+        Fraction {
+            numer: val as i32,
+            denom: One::one(),
+        }
+    }
+}
+
+impl TryFrom<Fraction<i64>> for Fraction<i32> {
+    type Error = &'static str;
+
+    fn try_from(val: Fraction<i64>) -> Result<Self, Self::Error> {
+        let numer = i32::try_from(*val.numer()).map_err(|_| "numerator overflow")?;
+        let denom = i32::try_from(*val.denom()).map_err(|_| "denominator overflow")?;
+        Ok(Fraction { numer, denom })
+    }
+}
+
+impl TryFrom<Fraction<i128>> for Fraction<i64> {
+    type Error = &'static str;
+
+    fn try_from(val: Fraction<i128>) -> Result<Self, Self::Error> {
+        let numer = i64::try_from(*val.numer()).map_err(|_| "numerator overflow")?;
+        let denom = i64::try_from(*val.denom()).map_err(|_| "denominator overflow")?;
+        Ok(Fraction { numer, denom })
     }
 }
 
