@@ -575,14 +575,14 @@ where
 // impl_formatting!(UpperExp, "", "{:E}", "{:#E}");
 
 impl<T: Integer + Zero + One + DivAssign + Copy> Fraction<T> {
-/// The `reduce` function normalizes a fraction to its canonical form by dividing both the
-/// numerator and denominator by their greatest common divisor.
-///
-/// $$ \frac{a}{b} \to \frac{a / \gcd(a,b)}{b / \gcd(a,b)} $$
-///
-/// Returns:
-///
-/// The function `reduce` returns a value of type `T`.
+    /// The `reduce` function normalizes a fraction to its canonical form by dividing both the
+    /// numerator and denominator by their greatest common divisor.
+    ///
+    /// $$ \frac{a}{b} \to \frac{a / \gcd(a,b)}{b / \gcd(a,b)} $$
+    ///
+    /// Returns:
+    ///
+    /// The function `reduce` returns a value of type `T`.
     ///
     /// # Examples
     ///
@@ -629,8 +629,8 @@ impl<T: Integer + Zero + Neg<Output = T> + Ord + Copy> Fraction<T> {
     }
 
     /// The `reciprocal` function swaps the numerator and denominator of a fraction and normalizes it.
-///
-/// $$ \left(\frac{a}{b}\right)^{-1} = \frac{b}{a} $$
+    ///
+    /// $$ \left(\frac{a}{b}\right)^{-1} = \frac{b}{a} $$
     ///
     /// # Examples
     ///
@@ -792,17 +792,17 @@ impl<T: Integer + One + Zero> Default for Fraction<T> {
 // }
 
 impl<T: Integer + Copy> Fraction<T> {
-/// The `cross` function calculates the cross product of two values.
-///
-/// $$ \frac{a}{b} \times \frac{c}{d} = ad - bc $$
-///
-/// Arguments:
-///
-/// * `rhs`: The parameter `rhs` is a reference to another object of the same type as `self`.
-///
-/// Returns:
-///
-/// The cross product of two values of type T.
+    /// The `cross` function calculates the cross product of two values.
+    ///
+    /// $$ \frac{a}{b} \times \frac{c}{d} = ad - bc $$
+    ///
+    /// Arguments:
+    ///
+    /// * `rhs`: The parameter `rhs` is a reference to another object of the same type as `self`.
+    ///
+    /// Returns:
+    ///
+    /// The cross product of two values of type T.
     ///
     /// # Examples
     ///
