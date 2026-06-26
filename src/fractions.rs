@@ -30,6 +30,8 @@ use core::hash::{Hash, Hasher};
 
 /// The function `const_abs` returns the absolute value of an integer.
 ///
+/// $$ |x| = \begin{cases} x & \text{if } x \ge 0 \\ -x & \text{if } x < 0 \end{cases} $$
+///
 /// Arguments:
 ///
 /// * `val`: The parameter `val` is of type `T`, which means it is an integer.
@@ -57,6 +59,8 @@ pub fn const_abs<T: Integer + Neg<Output = T>>(val: T) -> T {
 
 /// Calculates the greatest common divisor (GCD) of two integers using recursion.
 ///
+/// $$ \gcd(a, b) = \begin{cases} |a| & \text{if } b = 0 \\ \gcd(b, a \bmod b) & \text{otherwise} \end{cases} $$
+///
 /// This is an internal helper function used by `const_gcd`. It implements
 /// the Euclidean algorithm recursively.
 ///
@@ -82,6 +86,8 @@ fn gcd_recur<T: Integer + Neg<Output = T> + Copy>(val_a: T, val_b: T) -> T {
 
 /// The function `const_gcd` calculates the greatest common divisor (GCD) of two integers using
 /// recursion.
+///
+/// $$ \gcd(a, b) = \gcd(|a|, |b|),\quad \gcd(a, 0) = |a| $$
 ///
 /// Arguments:
 ///
@@ -384,6 +390,8 @@ where
 {
     /// The `new` function creates a new `Fraction` object and normalizes it.
     ///
+    /// $$ \text{Fraction}(a, b) = \frac{a / \gcd(a,b)}{b / \gcd(a,b)} $$
+    ///
     /// Arguments:
     ///
     /// * `num`: The `num` parameter represents the numerator of the fraction. It is the number above
@@ -450,6 +458,8 @@ where
     T: Integer + Zero + One + Neg<Output = T> + Copy + Signed,
 {
     /// The `abs` function in Rust returns the absolute of a `Fraction` object.
+    ///
+    /// $$ \left|\frac{a}{b}\right| = \frac{|a|}{|b|} $$
     ///
     /// # Examples
     ///
@@ -565,12 +575,14 @@ where
 // impl_formatting!(UpperExp, "", "{:E}", "{:#E}");
 
 impl<T: Integer + Zero + One + DivAssign + Copy> Fraction<T> {
-    /// The `reduce` function normalizes a fraction to its canonical form by dividing both the
-    /// numerator and denominator by their greatest common divisor.
-    ///
-    /// Returns:
-    ///
-    /// The function `reduce` returns a value of type `T`.
+/// The `reduce` function normalizes a fraction to its canonical form by dividing both the
+/// numerator and denominator by their greatest common divisor.
+///
+/// $$ \frac{a}{b} \to \frac{a / \gcd(a,b)}{b / \gcd(a,b)} $$
+///
+/// Returns:
+///
+/// The function `reduce` returns a value of type `T`.
     ///
     /// # Examples
     ///
@@ -617,6 +629,8 @@ impl<T: Integer + Zero + Neg<Output = T> + Ord + Copy> Fraction<T> {
     }
 
     /// The `reciprocal` function swaps the numerator and denominator of a fraction and normalizes it.
+///
+/// $$ \left(\frac{a}{b}\right)^{-1} = \frac{b}{a} $$
     ///
     /// # Examples
     ///
@@ -778,15 +792,17 @@ impl<T: Integer + One + Zero> Default for Fraction<T> {
 // }
 
 impl<T: Integer + Copy> Fraction<T> {
-    /// The `cross` function calculates the cross product of two values.
-    ///
-    /// Arguments:
-    ///
-    /// * `rhs`: The parameter `rhs` is a reference to another object of the same type as `self`.
-    ///
-    /// Returns:
-    ///
-    /// The cross product of two values of type T.
+/// The `cross` function calculates the cross product of two values.
+///
+/// $$ \frac{a}{b} \times \frac{c}{d} = ad - bc $$
+///
+/// Arguments:
+///
+/// * `rhs`: The parameter `rhs` is a reference to another object of the same type as `self`.
+///
+/// Returns:
+///
+/// The cross product of two values of type T.
     ///
     /// # Examples
     ///
@@ -1046,8 +1062,10 @@ impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd for Fraction<T> {
 impl<T: Integer + Ord + Copy + DivAssign> Ord for Fraction<T> {
     /// Compares two fractions and returns their ordering.
     ///
+    /// $$ \frac{a}{b} < \frac{c}{d} \iff a d < c b $$
+    ///
     /// This implementation compares fractions by cross-multiplying to avoid
-    /// precision loss: a/b < c/d iff a*d < c*b.
+    /// precision loss.
     ///
     /// # Examples
     ///
@@ -1085,6 +1103,8 @@ where
     T: Integer + Copy + NumAssign + Signed + Neg<Output = T> + Zero + One,
 {
     /// The function performs a multiplication assignment operation on two objects of the same type.
+    ///
+    /// $$ \frac{a}{b} \cdot \frac{c}{d} = \frac{ac}{bd} $$
     ///
     /// Arguments:
     ///
@@ -1151,6 +1171,8 @@ where
 {
     /// The function performs division assignment on a mutable reference to a struct, swapping and
     /// multiplying its numerator and denominator with another struct.
+    ///
+    /// $$ \frac{a}{b} \div \frac{c}{d} = \frac{ad}{bc} $$
     ///
     /// Arguments:
     ///
@@ -1225,6 +1247,8 @@ where
     /// The function `sub_assign` subtracts another value from the current value and normalizes the
     /// result.
     ///
+    /// $$ \frac{a}{b} - \frac{c}{d} = \frac{ad - bc}{bd} $$
+    ///
     /// Arguments:
     ///
     /// * `other`: The `other` parameter is of the same type as `self` and represents another instance
@@ -1297,6 +1321,8 @@ where
 {
     /// The function `add_assign` adds two fractions together and assigns the result to the first
     /// fraction.
+    ///
+    /// $$ \frac{a}{b} + \frac{c}{d} = \frac{ad + bc}{bd} $$
     ///
     /// Arguments:
     ///
