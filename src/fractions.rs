@@ -610,6 +610,8 @@ impl<T: Integer + Zero + Neg<Output = T> + Ord + Copy> Fraction<T> {
     /// The `keep_denom_positive` function in Rust normalizes a fraction to a canonical form by ensuring that the
     /// denominator is always non-negative.
     ///
+    /// $$ \frac{a}{-b} \to \frac{-a}{b} $$
+    ///
     /// # Examples
     ///
     /// ```
@@ -849,6 +851,8 @@ where
 
     /// The `neg` function in Rust returns the negation of a `Fraction` object.
     ///
+    /// $$ -\frac{a}{b} = \frac{-a}{b} $$
+    ///
     /// # Examples
     ///
     /// ```
@@ -873,6 +877,8 @@ where
 
     /// Negates the given immutable fraction reference by cloning and negating
     /// the clone.
+    ///
+    /// $$ -\frac{a}{b} = \frac{-a}{b} $$
     ///
     /// # Examples
     ///
@@ -899,6 +905,8 @@ where
     ///
     /// It clones the fraction, calls `reciprocal` on the clone to invert it,
     /// and returns the inverted fraction, leaving the original unchanged.
+    ///
+    /// $$ \left(\frac{a}{b}\right)^{-1} = \frac{b}{a} $$
     ///
     /// # Examples
     ///
@@ -1398,6 +1406,8 @@ where
 {
     /// The function performs a multiplication assignment operation on a mutable reference to a value.
     ///
+    /// $$ \frac{a}{b} \cdot s = \frac{a \cdot s}{b} $$
+    ///
     /// Arguments:
     ///
     /// * `other`: `other` is a generic parameter of type `T`.
@@ -1440,6 +1450,8 @@ where
     /// The function performs division assignment by swapping the denominator with the given value,
     /// normalizing the fraction, and multiplying the denominator by the swapped value.
     ///
+    /// $$ \frac{a}{b} \div s = \frac{a}{b \cdot s} $$
+    ///
     /// Arguments:
     ///
     /// * `other`: `other` is a generic parameter of type `T`.
@@ -1481,6 +1493,8 @@ where
     T: Integer + Copy + NumAssign,
 {
     /// The function subtracts a value from a numerator and updates the fraction.
+    ///
+    /// $$ \frac{a}{b} - s = \frac{a - b \cdot s}{b} $$
     ///
     /// Arguments:
     ///
@@ -1532,6 +1546,8 @@ where
     T: Integer + Copy + NumAssign + Zero + One,
 {
     /// The function `add_assign` adds a value to a numerator and updates the fraction.
+    ///
+    /// $$ \frac{a}{b} + s = \frac{a + b \cdot s}{b} $$
     ///
     /// Arguments:
     ///
