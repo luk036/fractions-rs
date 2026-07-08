@@ -385,3 +385,197 @@ fn test_fraction_clone_and_copy() {
     let f3 = f1;
     assert_eq!(f1, f3);
 }
+
+// ============================================================================
+// Fraction<i8> coverage tests
+// ============================================================================
+
+#[test]
+fn test_i8_construction() {
+    let f = Fraction::new(1i8, 2i8);
+    assert_eq!(f, Fraction::new(1i8, 2));
+
+    let f_raw = Fraction::new_raw(3i8, 4i8);
+    assert_eq!(*f_raw.numer(), 3i8);
+    assert_eq!(*f_raw.denom(), 4i8);
+
+    let f_def: Fraction<i8> = Fraction::default();
+    assert!(f_def.is_zero());
+
+    let f_zero = Fraction::<i8>::zero();
+    assert!(f_zero.is_zero());
+    assert_eq!(*f_zero.numer(), 0i8);
+    assert_eq!(*f_zero.denom(), 1i8);
+
+    let f_one = Fraction::<i8>::one();
+    assert!(f_one.is_one());
+    assert_eq!(*f_one.numer(), 1i8);
+    assert_eq!(*f_one.denom(), 1i8);
+}
+
+#[test]
+fn test_i8_special_values() {
+    let zero: Fraction<i8> = Fraction::new(0, 1);
+    assert!(zero.is_zero());
+    assert!(!zero.is_infinite());
+    assert!(!zero.is_nan());
+
+    let inf: Fraction<i8> = Fraction::new(1, 0);
+    assert!(inf.is_infinite());
+
+    let neg_inf: Fraction<i8> = Fraction::new(-1, 0);
+    assert!(neg_inf.is_infinite());
+
+    let nan: Fraction<i8> = Fraction::new(0, 0);
+    assert!(nan.is_nan());
+}
+
+#[test]
+fn test_i8_setters() {
+    let mut f: Fraction<i8> = Fraction::new(1, 2);
+
+    f.set_zero();
+    assert!(f.is_zero());
+
+    f.set_one();
+    assert!(f.is_one());
+
+    f.set_infinite();
+    assert!(f.is_infinite());
+
+    f.set_nan();
+    assert!(f.is_nan());
+}
+
+#[test]
+fn test_i8_arithmetic() {
+    let f1: Fraction<i8> = Fraction::new(1, 2);
+    let f2: Fraction<i8> = Fraction::new(1, 3);
+
+    assert_eq!(f1 + f2, Fraction::new(5i8, 6));
+    assert_eq!(f1 - f2, Fraction::new(1i8, 6));
+    assert_eq!(f1 * f2, Fraction::new(1i8, 6));
+    assert_eq!(f1 / f2, Fraction::new(3i8, 2));
+    assert_eq!(-f1, Fraction::new(-1i8, 2));
+    assert_eq!(f1.abs(), Fraction::new(1i8, 2));
+}
+
+#[test]
+fn test_i8_comparison() {
+    let f1: Fraction<i8> = Fraction::new(1, 2);
+    let f2: Fraction<i8> = Fraction::new(1, 3);
+
+    assert!(f1 > f2);
+    assert!(f2 < f1);
+    assert_eq!(f1, Fraction::new(2i8, 4));
+
+    assert_eq!(Fraction::from(3i8), 3i8);
+    assert_eq!(3i8, Fraction::from(3i8));
+    assert!(Fraction::from(3i8) > 1i8);
+    assert!(1i8 < Fraction::from(3i8));
+}
+
+#[test]
+fn test_i8_compound_assign() {
+    let mut f: Fraction<i8> = Fraction::new(1, 2);
+    f += Fraction::new(1i8, 3);
+    assert_eq!(f, Fraction::new(5i8, 6));
+    f -= Fraction::new(1i8, 6);
+    assert_eq!(f, Fraction::new(2i8, 3));
+    f *= Fraction::new(3i8, 2);
+    assert_eq!(f, Fraction::new(1i8, 1));
+    f /= Fraction::new(2i8, 1);
+    assert_eq!(f, Fraction::new(1i8, 2));
+}
+
+#[test]
+fn test_i8_scalar_assign() {
+    let mut f: Fraction<i8> = Fraction::new(1, 2);
+    f += 1i8;
+    assert_eq!(f, Fraction::new(3i8, 2));
+    f -= 1i8;
+    assert_eq!(f, Fraction::new(1i8, 2));
+    f *= 2i8;
+    assert_eq!(f, Fraction::new(1i8, 1));
+    f /= 2i8;
+    assert_eq!(f, Fraction::new(1i8, 2));
+}
+
+#[test]
+fn test_i8_forward_op_assign_ref() {
+    let mut f: Fraction<i8> = Fraction::new(1, 2);
+    let g = Fraction::new(1i8, 3);
+    f += &g;
+    assert_eq!(f, Fraction::new(5i8, 6));
+
+    let mut f2: Fraction<i8> = Fraction::new(1, 2);
+    let val = 1i8;
+    f2 += &val;
+    assert_eq!(f2, Fraction::new(3i8, 2));
+}
+
+// ============================================================================
+// From/TryFrom coverage tests
+// ============================================================================
+
+#[test]
+fn test_from_i8_to_i32() {
+    let f: Fraction<i32> = Fraction::from(5i8);
+    assert_eq!(f, Fraction::new(5i32, 1));
+}
+
+#[test]
+fn test_from_u8_to_i32() {
+    let f: Fraction<i32> = Fraction::from(5u8);
+    assert_eq!(f, Fraction::new(5i32, 1));
+}
+
+#[test]
+fn test_try_from_i64_to_i32() {
+    use core::convert::TryFrom;
+    let f_i64 = Fraction::new(5i64, 1i64);
+    let f_i32 = Fraction::<i32>::try_from(f_i64).unwrap();
+    assert_eq!(f_i32, Fraction::new(5i32, 1));
+}
+
+#[test]
+fn test_try_from_i128_to_i64() {
+    use core::convert::TryFrom;
+    let f_i128 = Fraction::new(5i128, 1i128);
+    let f_i64 = Fraction::<i64>::try_from(f_i128).unwrap();
+    assert_eq!(f_i64, Fraction::new(5i64, 1));
+}
+
+// ============================================================================
+// Fraction<i128> coverage tests
+// ============================================================================
+
+#[test]
+fn test_i128_construction() {
+    let f = Fraction::new(1i128, 2i128);
+    assert_eq!(f, Fraction::new(1i128, 2));
+
+    let f_raw = Fraction::new_raw(3i128, 4i128);
+    assert_eq!(*f_raw.numer(), 3i128);
+    assert_eq!(*f_raw.denom(), 4i128);
+}
+
+#[test]
+fn test_i128_special_values() {
+    let inf: Fraction<i128> = Fraction::new(1, 0);
+    assert!(inf.is_infinite());
+
+    let neg_inf: Fraction<i128> = Fraction::new(-1, 0);
+    assert!(neg_inf.is_infinite());
+
+    let nan: Fraction<i128> = Fraction::new(0, 0);
+    assert!(nan.is_nan());
+}
+
+#[test]
+fn test_i128_normalization() {
+    // Exercise normalize/reduce for i128 Fraction
+    let mut f = Fraction::new_raw(4i128, 6i128);
+    f.normalize();
+    assert_eq!(f, Fraction::new(2i128, 3));
+}
