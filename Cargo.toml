@@ -91,8 +91,7 @@ std = [
 ]
 
 [dev-dependencies]
-quickcheck = "1.1.0"
-quickcheck_macros = "1.2.0"
+proptest = "1"
 criterion = "0.8.2"
 
 [[bench]]

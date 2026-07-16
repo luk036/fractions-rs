@@ -1653,7 +1653,7 @@ forward_op!(impl Div, div, div_assign, Signed);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use quickcheck_macros::quickcheck;
+    use proptest::prelude::*;
 
     #[test]
     fn test_neg() {
@@ -1661,53 +1661,55 @@ mod tests {
         assert_eq!(-frac, frac.abs());
     }
 
-    #[quickcheck]
-    fn check_eq(num: u32, den: u32) -> bool {
-        let frac = Fraction::new(num as i32, den as i32);
-        frac == frac
-    }
+    proptest! {
+        #[test]
+        fn check_eq(num in any::<u32>(), den in any::<u32>()) {
+            let frac = Fraction::new(num as i32, den as i32);
+            assert!(frac == frac);
+        }
 
-    #[quickcheck]
-    fn check_neg(num: u32, den: u32) -> bool {
-        let frac = Fraction::new(num as i32, den as i32);
-        frac == -(-frac)
-    }
+        #[test]
+        fn check_neg(num in any::<u32>(), den in any::<u32>()) {
+            let frac = Fraction::new(num as i32, den as i32);
+            assert!(frac == -(-frac));
+        }
 
-    #[quickcheck]
-    fn check_reciprocal(num: i32) -> bool {
-        let mut frac = Fraction::new(num / 2, 10000);
-        let original = frac;
-        frac.reciprocal();
-        frac.reciprocal();
-        frac == original
-    }
+        #[test]
+        fn check_reciprocal(num in any::<i32>()) {
+            let mut frac = Fraction::new(num / 2, 10000);
+            let original = frac;
+            frac.reciprocal();
+            frac.reciprocal();
+            assert!(frac == original);
+        }
 
-    #[quickcheck]
-    fn check_default(num: u32, den: u32) -> bool {
-        let frac = Fraction::new(num as i32, den as i32);
-        let zero = Fraction::<i32>::default();
-        frac == frac + zero
-    }
+        #[test]
+        fn check_default(num in any::<u32>(), den in any::<u32>()) {
+            let frac = Fraction::new(num as i32, den as i32);
+            let zero = Fraction::<i32>::default();
+            assert!(frac == frac + zero);
+        }
 
-    #[quickcheck]
-    fn check_mul(num1: u16, den2: u16) -> bool {
-        let frac1 = Fraction::new(num1 as i32, 2000000000);
-        let frac2 = Fraction::new(2000000000, den2 as i32);
-        frac1 * frac2 == frac2 * frac1
-    }
+        #[test]
+        fn check_mul(num1 in any::<u16>(), den2 in any::<u16>()) {
+            let frac1 = Fraction::new(num1 as i32, 2000000000);
+            let frac2 = Fraction::new(2000000000, den2 as i32);
+            assert!(frac1 * frac2 == frac2 * frac1);
+        }
 
-    #[quickcheck]
-    fn check_add(den1: u32, den2: u32) -> bool {
-        let frac1 = Fraction::new(2000000001_i128, den1 as i128);
-        let frac2 = Fraction::new(2000000009_i128, den2 as i128);
-        frac1 + frac2 == frac2 + frac1
-    }
+        #[test]
+        fn check_add(den1 in any::<u32>(), den2 in any::<u32>()) {
+            let frac1 = Fraction::new(2000000001_i128, den1 as i128);
+            let frac2 = Fraction::new(2000000009_i128, den2 as i128);
+            assert!(frac1 + frac2 == frac2 + frac1);
+        }
 
-    #[quickcheck]
-    fn check_add_sub(num1: u32, num2: u32) -> bool {
-        let frac1 = Fraction::new(num1 as i128, 2000000001_i128);
-        let frac2 = Fraction::new(num2 as i128, 2000000009_i128);
-        frac1 == (frac1 + frac2) - frac2
+        #[test]
+        fn check_add_sub(num1 in any::<u32>(), num2 in any::<u32>()) {
+            let frac1 = Fraction::new(num1 as i128, 2000000001_i128);
+            let frac2 = Fraction::new(num2 as i128, 2000000009_i128);
+            assert!(frac1 == (frac1 + frac2) - frac2);
+        }
     }
 
     #[test]
