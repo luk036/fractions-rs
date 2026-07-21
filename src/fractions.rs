@@ -3,7 +3,7 @@
 
 // use core::iter::{Product, Sum};
 use core::ops::{Add, Div, Mul, Neg, Rem, Sub};
-use core::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
+use core::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
 
 // use core::str::FromStr;
 use num_integer::gcd;
@@ -1649,6 +1649,25 @@ forward_op!(impl Add, add, add_assign, Signed);
 forward_op!(impl Sub, sub, sub_assign,);
 forward_op!(impl Mul, mul, mul_assign, Signed);
 forward_op!(impl Div, div, div_assign, Signed);
+
+// ---------------------------------------------------------------------------
+// num_traits::Zero / One implementations for Fraction
+// ---------------------------------------------------------------------------
+
+impl<T: Integer + Copy + NumAssign + Signed + Zero + One> Zero for Fraction<T> {
+    fn zero() -> Self {
+        Fraction::zero()
+    }
+    fn is_zero(&self) -> bool {
+        self.is_zero()
+    }
+}
+
+impl<T: Integer + Copy + NumAssign + Signed + Zero + One> One for Fraction<T> {
+    fn one() -> Self {
+        Fraction::one()
+    }
+}
 
 #[cfg(test)]
 mod tests {

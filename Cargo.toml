@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "fractions-rs"
-version = "0.1.7"
+version = "0.1.8"
 rust-version = "1.70"
 authors = ["Wai-Shing Luk"]
 exclude = [
