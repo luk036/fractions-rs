@@ -9,9 +9,12 @@
 
 ### 📦 Cargo
 
-- Install the rust toolchain in order to have cargo installed by following
-  [this](https://www.rust-lang.org/tools/install) guide.
-- run `cargo install fractions-rs`
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+fractions-rs = "0.1"
+```
 
 ## 📜 License
 
