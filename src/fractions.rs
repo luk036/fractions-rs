@@ -1053,6 +1053,7 @@ impl<T: Integer + PartialOrd + Copy + DivAssign> PartialOrd for Fraction<T> {
     /// Compares two fractions for ordering.
     ///
     /// Returns `Some(Ordering)` indicating the relationship between the two fractions.
+    #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
@@ -1655,15 +1656,18 @@ forward_op!(impl Div, div, div_assign, Signed);
 // ---------------------------------------------------------------------------
 
 impl<T: Integer + Copy + NumAssign + Signed + Zero + One> Zero for Fraction<T> {
+    #[inline]
     fn zero() -> Self {
         Fraction::zero()
     }
+    #[inline]
     fn is_zero(&self) -> bool {
         self.is_zero()
     }
 }
 
 impl<T: Integer + Copy + NumAssign + Signed + Zero + One> One for Fraction<T> {
+    #[inline]
     fn one() -> Self {
         Fraction::one()
     }
