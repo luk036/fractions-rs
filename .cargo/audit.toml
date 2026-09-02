@@ -1,0 +1,7 @@
+# Silence the "proc-macro-error2 is unmaintained" advisory (RUSTSEC-2026-0173).
+# It is a transitive, dev-only dependency (via proptest/criterion -> syn/quote/zerocopy-derive)
+# and does not ship in the published library, so there is nothing actionable to fix.
+[advisories]
+ignore = [
+    "RUSTSEC-2026-0173",
+]
