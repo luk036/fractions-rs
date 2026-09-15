@@ -1287,18 +1287,18 @@ where
             return;
         }
 
-        let mut rhs = other;
-        mem::swap(&mut self.denom, &mut rhs.numer);
-        let common_n = self.reduce();
-        let mut common_d = rhs.reduce();
-        mem::swap(&mut self.denom, &mut rhs.numer);
-        self.numer = self.cross(&rhs);
-        self.denom *= rhs.denom;
-        mem::swap(&mut self.denom, &mut common_d);
-        self.reduce();
-        self.numer *= common_n;
-        self.denom *= common_d;
-        self.reduce();
+        let common = gcd(self.denom, other.denom);
+        if common == One::one() {
+            self.numer = self.numer * other.denom - self.denom * other.numer;
+            self.denom *= other.denom;
+            self.keep_denom_positive();
+            return;
+        }
+        let left = self.denom / common;
+        let right = other.denom / common;
+        self.numer = right * self.numer - left * other.numer;
+        self.denom *= right;
+        self.normalize();
     }
 }
 
@@ -1364,18 +1364,18 @@ where
             return;
         }
 
-        let mut rhs = other;
-        mem::swap(&mut self.denom, &mut rhs.numer);
-        let common_n = self.reduce();
-        let mut common_d = rhs.reduce();
-        mem::swap(&mut self.denom, &mut rhs.numer);
-        self.numer = self.numer * rhs.denom + self.denom * rhs.numer;
-        self.denom *= rhs.denom;
-        mem::swap(&mut self.denom, &mut common_d);
-        self.reduce();
-        self.numer *= common_n;
-        self.denom *= common_d;
-        self.reduce();
+        let common = gcd(self.denom, other.denom);
+        if common == One::one() {
+            self.numer = self.numer * other.denom + self.denom * other.numer;
+            self.denom *= other.denom;
+            self.keep_denom_positive();
+            return;
+        }
+        let left = self.denom / common;
+        let right = other.denom / common;
+        self.numer = right * self.numer + left * other.numer;
+        self.denom *= right;
+        self.normalize();
     }
 }
 
